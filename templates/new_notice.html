@@ -1,0 +1,42 @@
+{% extends 'base.html' %} {% block title %} New Notice {% endblock %} {% block
+content %}
+<!-- Add a Notice here -->
+<div
+  class="max-w-md mx-auto my-4 bg-white rounded-lg overflow-hidden shadow-md p-8"
+>
+  <h2 class="text-2xl font-semibold mb-4">Notice Section</h2>
+  <form action="{{ url_for('new_notice') }}" method="POST">
+    <div class="mb-4">
+      <label for="title" class="block text-gray-800 font-semibold mb-1"
+        >Title</label
+      >
+      <input
+        type="text"
+        id="title"
+        name="title"
+        class="w-full px-4 py-2 rounded-md border border-gray-300 focus:outline-none focus:border-blue-400"
+        placeholder="Enter notice title"
+      />
+    </div>
+    <div class="mb-4">
+      <label for="description" class="block text-gray-800 font-semibold mb-1"
+        >Description</label
+      >
+      <textarea
+        id="description"
+        name="description"
+        rows="4"
+        class="w-full px-4 py-2 rounded-md border border-gray-300 focus:outline-none focus:border-blue-400"
+        placeholder="Enter notice description"
+      ></textarea>
+    </div>
+    <button
+      type="submit"
+      class="bg-green-500 text-white py-2 px-4 rounded-md hover:bg-green-600"
+    >
+      Submit
+    </button>
+  </form>
+</div>
+
+{% endblock %}

@@ -1,0 +1,49 @@
+{% extends 'base.html' %} {% block title %} Members List {% endblock %} {% block
+content %}
+
+<!-- Member Card -->
+<div class="mt-2 mx-2">
+  <h2
+    class="text-center bg-slate-600 text-white font-bold p-4 text-3xl rounded-md"
+  >
+    Member List
+  </h2>
+</div>
+
+<div class="grid grid-cols-1 md:grid-cols-3 gap-4 mx-auto max-w-screen-lg">
+  {% for member in members %}
+  <div class="bg-white rounded-lg overflow-hidden shadow-md mt-2">
+    <div class="p-4">
+      <img
+        class="w-full h-64 object-cover mb-4 rounded-md"
+        src="{{ url_for('static', filename=member.photo) }}"
+        alt="Member Photo"
+      />
+      <div class="text-gray-800">
+        <h2 class="text-xl font-semibold mb-2">{{ member.name }}</h2>
+        <p class="mb-2">
+          <span class="font-semibold">Phone:</span> {{ member.phone }}
+        </p>
+        <p class="mb-2">
+          <span class="font-semibold">NID:</span> {{ member.nid }}
+        </p>
+        <p class="mb-2">
+          <span class="font-semibold">Email:</span> {{ member.email }}
+        </p>
+      </div>
+    </div>
+  </div>
+  {% endfor %}
+</div>
+
+<div class="mx-2">
+  <div class="bg-white text-center py-4 my-2 rounded-md">
+    <a
+      href="{{ url_for('add_member') }}"
+      class="text-gray-800 font-semibold hover:underline"
+      >Add New Member</a
+    >
+  </div>
+</div>
+
+{% endblock %}

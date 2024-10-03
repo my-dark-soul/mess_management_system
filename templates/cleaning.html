@@ -1,0 +1,57 @@
+{% extends 'base.html' %} {% block title %} Cleaner List {% endblock %} {% block
+content %}
+
+<!-- Cleaner List -->
+<div class="mx-3">
+  <div class="max-w-3xl mx-auto mt-3">
+    <div class="flex items-center justify-between mb-4">
+      <h2 class="text-2xl font-semibold">Cleaner List</h2>
+      <a
+        href="{{ url_for('add_cleaner') }}"
+        class="flex items-center justify-center bg-blue-500 text-white rounded-full h-10 w-10 hover:bg-blue-600"
+      >
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          class="h-6 w-6"
+          fill="none"
+          viewBox="0 0 24 24"
+          stroke="currentColor"
+        >
+          <path
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            stroke-width="2"
+            d="M12 4v16m8-8H4"
+          />
+        </svg>
+      </a>
+    </div>
+  </div>
+</div>
+
+<!-- here is the cleaner list card -->
+
+<div class="grid grid-cols-1 md:grid-cols-3 gap-4 mx-auto max-w-screen-lg my-2">
+  {% for cleaning in cleanings %}
+  <div class="bg-white rounded-md shadow-md p-6 mb-4">
+    <h2 class="text-2xl font-semibold mb-4">
+      Date: {{ cleaning.cleaning_date.strftime('%d %B, %Y') }}
+    </h2>
+    <!-- Cleaner details -->
+    <div class="border-t border-gray-300 pt-4">
+      <div class="flex justify-between mb-2">
+        <span class="font-semibold">Cleaner 01:</span>
+        <span class="text-gray-800">{{ cleaning.cleaner1 }}</span>
+      </div>
+      {% if cleaning.cleaner2 %}
+      <div class="flex justify-between mb-2">
+        <span class="font-semibold">Cleaner 02:</span>
+        <span class="text-gray-800">{{ cleaning.cleaner2 }}</span>
+      </div>
+      {% endif %}
+    </div>
+  </div>
+  {% endfor %}
+</div>
+
+{% endblock %}

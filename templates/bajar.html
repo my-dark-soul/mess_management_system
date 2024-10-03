@@ -1,0 +1,60 @@
+{% extends 'base.html' %} {% block title %} Bajar {% endblock %} {% block
+content %}
+<!-- This is here to the bajar list of this month -->
+<div class="mx-3">
+  <div class="max-w-3xl mx-auto mt-3">
+    <div class="flex items-center justify-between mb-4">
+      <h2 class="text-2xl font-semibold">Bajar List</h2>
+      <a
+        href="{{ url_for('add_items') }}"
+        class="flex items-center justify-center bg-blue-500 text-white rounded-full h-10 w-10 hover:bg-blue-600"
+      >
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          class="h-6 w-6"
+          fill="none"
+          viewBox="0 0 24 24"
+          stroke="currentColor"
+        >
+          <path
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            stroke-width="2"
+            d="M12 4v16m8-8H4"
+          />
+        </svg>
+      </a>
+    </div>
+  </div>
+</div>
+
+<!-- Bajar List Card -->
+<div class="grid grid-cols-1 md:grid-cols-3 gap-4 mx-auto max-w-screen-lg my-2">
+  {% for bajar_item in bajar_list %}
+<div class="bg-white rounded-md shadow-md p-6 mb-4">
+    <h2 class="text-2xl font-semibold mb-4">Date: {{ bajar_item.bajar_date.strftime('%d-%m-%Y') }}</h2>
+    <div class="border-t border-gray-300 pt-4">
+        <div class="flex justify-between mb-2">
+            <span class="font-semibold">Name:</span>
+            <span class="text-gray-800">{{ bajar_item.bajarkari }}</span>
+        </div>
+        <div class="flex justify-between mb-2">
+            <span class="font-semibold">Meal:</span>
+            <span class="text-gray-800">{{ bajar_item.meal_cost }}</span>
+        </div>
+        <div class="flex justify-between mb-2">
+            <span class="font-semibold">Extra:</span>
+            <span class="text-gray-800">{{ bajar_item.extra }}</span>
+        </div>
+        <div class="flex justify-between mb-2 border-t mt-4">
+            <span class="font-semibold pt-3">Total Cost:</span>
+            <span class="text-gray-800 pt-3">{{ bajar_item.total_cost }}</span>
+        </div>
+    </div>
+</div>
+{% endfor %}
+
+  
+</div>
+
+{% endblock %}

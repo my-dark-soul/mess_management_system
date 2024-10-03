@@ -1,0 +1,40 @@
+{% extends 'base.html' %} {% block title %} Add Member {% endblock %} {% block content
+%}
+
+    <!-- A form for adding new member -->
+    <form action="{{ url_for('add_member') }}" method="POST" enctype="multipart/form-data">
+    <div class="max-w-md mx-auto my-8 bg-white rounded-lg overflow-hidden shadow-md">
+        <div class="p-4">
+            <h2 class="text-2xl font-semibold mb-4 text-center">Add New Member</h2>
+
+            <div class="mb-4">
+                <div id="photo-preview" class="mt-2"></div>
+            </div>
+
+            <div class="mb-4">
+                <label for="name" class="block text-gray-800 font-semibold mb-1">Name</label>
+                <input type="text" id="name" name="name" class="w-full px-4 py-2 rounded-md border border-gray-300 focus:outline-none focus:border-blue-400" placeholder="Enter name">
+            </div>
+            <div class="mb-4">
+                <label for="phone" class="block text-gray-800 font-semibold mb-1">Phone Number</label>
+                <input type="text" id="phone" name="phone" class="w-full px-4 py-2 rounded-md border border-gray-300 focus:outline-none focus:border-blue-400" placeholder="Enter phone number">
+            </div>
+            <div class="mb-4">
+                <label for="nid" class="block text-gray-800 font-semibold mb-1">NID</label>
+                <input type="text" id="nid" name="nid" class="w-full px-4 py-2 rounded-md border border-gray-300 focus:outline-none focus:border-blue-400" placeholder="Enter NID">
+            </div>
+            <div class="mb-4">
+                <label for="email" class="block text-gray-800 font-semibold mb-1">Email</label>
+                <input type="email" id="email" name="email" class="w-full px-4 py-2 rounded-md border border-gray-300 focus:outline-none focus:border-blue-400" placeholder="Enter email">
+            </div>
+            <div class="mb-4">
+                <label for="photo" class="block text-gray-800 font-semibold mb-1">Photo</label>
+                <input type="file" id="photo" name="photo" accept="image/*" class="w-full px-4 py-2 rounded-md border border-gray-300 focus:outline-none focus:border-blue-400">
+            </div>
+            <button type="submit" class="bg-green-500 text-white py-2 px-4 rounded-md hover:bg-green-600">Submit</button>
+        </div>
+    </div>
+</form>
+
+
+{% endblock %}

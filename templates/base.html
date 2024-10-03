@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>{% block title %} {% endblock %}</title>
+    <link
+      rel="shortcut icon"
+      href="../static/img/home.svg"
+      type="image/x-icon"
+    />
+    <link href="../static/dist/output.css" rel="stylesheet" />
+  </head>
+
+  <body class="bg-gray-300">
+    <nav class="bg-gray-800 py-4">
+      <div class="max-w-7xl mx-auto px-4 flex justify-between items-center">
+        <a href="{{ url_for('home') }}" class="text-white font-bold text-xl"
+          >Mess Meal System</a
+        >
+        <button
+          id="mobile-menu-toggle"
+          class="text-white focus:outline-none focus:text-gray-300 md:hidden lg:hidden"
+        >
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            class="h-6 w-6"
+            fill="none"
+            viewBox="0 0 24 24"
+            stroke="currentColor"
+          >
+            <path
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              stroke-width="2"
+              d="M4 6h16M4 12h16m-7 6h7"
+            ></path>
+          </svg>
+        </button>
+        <div class="hidden md:flex lg:flex space-x-4">
+          <a
+            href="{{ url_for('home') }}"
+            class="text-white block py-2 px-3 hover:bg-gray-700 hover:rounded transition-all duration-300"
+            >Home</a
+          >
+          <a
+            href="{{ url_for('members') }}"
+            class="text-white block py-2 px-3 hover:bg-gray-700 hover:rounded transition-all duration-300"
+            >Members</a
+          >
+          <a
+            href="{{ url_for('bajar') }}"
+            class="text-white block py-2 px-3 hover:bg-gray-700 hover:rounded transition-all duration-300"
+            >Bajar</a
+          >
+          <a
+            href="{{ url_for('notice') }}"
+            class="text-white block py-2 px-3 hover:bg-gray-700 hover:rounded transition-all duration-300"
+            >Notice</a
+          >
+          <a
+            href="{{ url_for('cleaning') }}"
+            class="text-white block py-2 px-3 hover:bg-gray-700 hover:rounded transition-all duration-300"
+            >Cleaning</a
+          >
+          <a
+            href="{{ url_for('meal_rent') }}"
+            class="text-white block py-2 px-3 hover:bg-gray-700 hover:rounded transition-all duration-300"
+            >Meal</a
+          >
+        </div>
+      </div>
+      <div id="mobile-menu" class="hidden md:hidden lg:hidden">
+        <div class="px-2 pt-2 pb-3 space-y-1">
+          <a
+            href="{{ url_for('home') }}"
+            class="text-white block py-2 px-3 hover:bg-gray-700 hover:rounded transition-all duration-300"
+            >Home</a
+          >
+          <a
+            href="{{ url_for('members') }}"
+            class="text-white block py-2 px-3 hover:bg-gray-700 hover:rounded transition-all duration-300"
+            >Members</a
+          >
+          <a
+            href="{{ url_for('bajar') }}"
+            class="text-white block py-2 px-3 hover:bg-gray-700 hover:rounded transition-all duration-300"
+            >Bajar</a
+          >
+          <a
+            href="{{ url_for('notice') }}"
+            class="text-white block py-2 px-3 hover:bg-gray-700 hover:rounded transition-all duration-300"
+            >Notice</a
+          >
+          <a
+            href="{{ url_for('cleaning') }}"
+            class="text-white block py-2 px-3 hover:bg-gray-700 hover:rounded transition-all duration-300"
+            >Cleaning</a
+          >
+          <a
+            href="{{ url_for('meal_rent') }}"
+            class="text-white block py-2 px-3 hover:bg-gray-700 hover:rounded transition-all duration-300"
+            >Meal</a
+          >
+        </div>
+      </div>
+    </nav>
+
+    {% block content %} {% endblock %}
+
+    <footer class="bg-gray-800 text-white py-4 bottom-0 w-full">
+      <div class="max-w-7xl mx-auto px-4">
+        <p class="text-center">Location: [Your Location]</p>
+        <p class="text-center">
+          &copy; 2024. All rights are reserved by Maruf Hasan.
+        </p>
+      </div>
+    </footer>
+    <script src="../static/js/add_member.js"></script>
+    <script src="../static/js/meal.js"></script>
+    <script src="../static/js/nav.js"></script>
+  </body>
+</html>

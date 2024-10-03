@@ -1,0 +1,80 @@
+{% extends 'base.html' %} {% block title %} Home {% endblock %} {% block content
+%}
+
+<div class="max-w-md mx-auto my-5 bg-white p-8 rounded-md shadow-md">
+  <h2 class="text-2xl font-semibold mb-4">Bajar Items Form</h2>
+  <form action="{{ url_for('add_items') }}" method="POST">
+    <div class="mb-4">
+      <label for="bajar_date" class="block text-gray-800 font-semibold mb-1"
+        >Bajar Date</label
+      >
+      <input
+        type="date"
+        id="bajar_date"
+        name="bajar_date"
+        class="w-full px-4 py-2 rounded-md border border-gray-300 focus:outline-none focus:border-blue-400"
+        placeholder="Enter Date"
+        required
+      />
+    </div>
+    <div class="mb-4">
+      <label for="bajarkari" class="block text-gray-800 font-semibold mb-1"
+        >Name</label
+      >
+      <input
+        type="text"
+        id="bajarkari"
+        name="bajarkari"
+        class="w-full px-4 py-2 rounded-md border border-gray-300 focus:outline-none focus:border-blue-400"
+        placeholder="Enter Your Name"
+        required
+      />
+    </div>
+    <div class="mb-4">
+      <label for="meal_cost" class="block text-gray-800 font-semibold mb-1"
+        >Meal Cost</label
+      >
+      <input
+        type="number"
+        id="meal_cost"
+        name="meal_cost"
+        class="w-full px-4 py-2 rounded-md border border-gray-300 focus:outline-none focus:border-blue-400"
+        placeholder="Meal Cost Amount"
+        required
+      />
+    </div>
+    <div class="mb-4">
+      <label for="extra" class="block text-gray-800 font-semibold mb-1"
+        >Extra</label
+      >
+      <input
+        type="number"
+        id="extra"
+        name="extra"
+        class="w-full px-4 py-2 rounded-md border border-gray-300 focus:outline-none focus:border-blue-400"
+        placeholder="Extra Amount"
+      />
+    </div>
+    <div class="mb-4">
+      <label for="totalCost" class="block text-gray-800 font-semibold mb-1"
+        >Total Cost</label
+      >
+      <input
+        type="number"
+        id="totalCost"
+        name="totalCost"
+        class="w-full px-4 py-2 rounded-md border border-gray-300 focus:outline-none focus:border-blue-400"
+        placeholder="Total cost"
+        required
+      />
+    </div>
+    <button
+      type="submit"
+      class="bg-blue-500 text-white py-2 px-4 rounded-md hover:bg-blue-600"
+    >
+      Submit
+    </button>
+  </form>
+</div>
+
+{% endblock %}
