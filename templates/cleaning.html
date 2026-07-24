@@ -1,35 +1,20 @@
-{% extends 'base.html' %} {% block title %} Cleaner List {% endblock %} {% block
-content %}
-
-<!-- Cleaner List -->
-<div class="w-full flex justify-center items-center mt-3 mb-3">
-    <h2 class="text-4xl font-bold">Cleaner List</h2>
-</div>
-
-
-<!-- here is the cleaner list card -->
-
-<div class="grid grid-cols-1 md:grid-cols-3 gap-4 mx-auto max-w-screen-lg my-2">
-  {% for cleaning in cleanings %}
-  <div class="bg-white rounded-md shadow-md p-6 mb-4">
-    <h2 class="text-2xl font-semibold mb-4">
-      Date: {{ cleaning.cleaning_date.strftime('%d %B, %Y') }}
-    </h2>
-    <!-- Cleaner details -->
-    <div class="border-t border-gray-300 pt-4">
-      <div class="flex justify-between mb-2">
-        <span class="font-semibold">Cleaner 01:</span>
-        <span class="text-gray-800">{{ cleaning.cleaner1 }}</span>
+{% extends "base.html" %}
+{% block title %}Cleaning Schedule{% endblock %}
+{% block content %}
+<div class="max-w-4xl mx-auto px-4 py-6">
+  <h2 class="text-3xl font-bold mb-6">Cleaning Schedule</h2>
+  <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+    {% for c in cleanings %}
+    <div class="bg-white rounded-lg shadow p-5">
+      <h3 class="text-lg font-semibold mb-3">{{ c.cleaning_date.strftime('%d %B, %Y') }}</h3>
+      <div class="text-sm space-y-1 border-t pt-3">
+        <div class="flex justify-between"><span class="font-medium">Cleaner 1:</span><span>{{ c.cleaner1 }}</span></div>
+        {% if c.cleaner2 %}<div class="flex justify-between"><span class="font-medium">Cleaner 2:</span><span>{{ c.cleaner2 }}</span></div>{% endif %}
       </div>
-      {% if cleaning.cleaner2 %}
-      <div class="flex justify-between mb-2">
-        <span class="font-semibold">Cleaner 02:</span>
-        <span class="text-gray-800">{{ cleaning.cleaner2 }}</span>
-      </div>
-      {% endif %}
     </div>
+    {% else %}
+    <p class="text-gray-500 col-span-3">No cleaning records found.</p>
+    {% endfor %}
   </div>
-  {% endfor %}
 </div>
-
 {% endblock %}

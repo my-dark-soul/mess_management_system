@@ -1,47 +1,22 @@
-{% extends 'base.html' %} {% block title %}Monitor Signin{% endblock %} {% block
-content %}
-<div class="flex items-center justify-center bg-gray-300 py-10">
-  <div class="bg-white p-8 rounded-lg shadow-md w-full max-w-md">
-    <h2 class="text-2xl font-semibold text-center mb-6">Monitor SignIn</h2>
-
-    <form method="POST" action="{{ url_for('signin') }}">
-      <div class="mb-4">
-        <label class="block text-gray-700 font-medium mb-1" for="phone"
-          >Phone</label
-        >
-        <input
-          type="phone"
-          id="phone"
-          name="phone"
-          class="w-full border border-gray-300 rounded px-3 py-2 focus:outline-none focus:ring focus:border-blue-400"
-          required
-        />
+{% extends "base.html" %}
+{% block title %}Monitor Signin{% endblock %}
+{% block content %}
+<div class="flex items-center justify-center py-16">
+  <div class="bg-white p-8 rounded-lg shadow w-full max-w-md">
+    <h2 class="text-2xl font-semibold text-center mb-6">Monitor Sign In</h2>
+    {% if error %}<div class="bg-red-100 text-red-700 px-4 py-2 rounded mb-4">{{ error }}</div>{% endif %}
+    <form method="POST" action="/signin" class="space-y-4">
+      <div>
+        <label class="block text-gray-700 font-medium mb-1">Phone</label>
+        <input type="text" name="phone" required class="w-full border border-gray-300 rounded px-3 py-2 focus:outline-none focus:ring focus:border-blue-400"/>
       </div>
-
-      <div class="mb-4">
-        <label class="block text-gray-700 font-medium mb-1" for="password"
-          >Password</label
-        >
-        <input
-          type="password"
-          id="password"
-          name="password"
-          class="w-full border border-gray-300 rounded px-3 py-2 focus:outline-none focus:ring focus:border-blue-400"
-          required
-        />
+      <div>
+        <label class="block text-gray-700 font-medium mb-1">Password</label>
+        <input type="password" name="password" required class="w-full border border-gray-300 rounded px-3 py-2 focus:outline-none focus:ring focus:border-blue-400"/>
       </div>
-      <button
-        type="submit"
-        class="w-full bg-blue-500 text-white font-semibold py-2 px-4 rounded hover:bg-blue-600 transition duration-200"
-      >
-        Sign In
-      </button>
-      <p class="mt-4">
-        Don't have an account?
-        <a class="text-blue-600 hover:underline" href='{{ url_for("signup") }}'
-          >Signup</a
-        >
-      </p>
+      <button type="submit" class="w-full bg-blue-500 text-white font-semibold py-2 px-4 rounded hover:bg-blue-600 transition">Sign In</button>
+      <p class="text-center text-sm mt-2">Don't have an account? <a href="/signup" class="text-blue-600 hover:underline">Signup</a></p>
+      <p class="text-center text-sm">Manager? <a href="/manager/signin" class="text-green-600 hover:underline">Manager Login</a></p>
     </form>
   </div>
 </div>

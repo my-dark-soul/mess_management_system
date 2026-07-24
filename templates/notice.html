@@ -1,28 +1,18 @@
-{% extends 'base.html' %} {% block title %} Notice {% endblock %} {% block
-content %}
-<!-- Notice Section -->
-
-<div class="mx-3">
-  <div class="max-w-3xl mx-auto mt-4 flex justify-between items-center">
-    <h2 class="text-4xl font-semibold">Notice Board</h2>
-  </div>
-
-  <!-- Sample notice cards -->
-  <div class="max-w-3xl mx-auto mt-4">
-    {% for notice in notices %}
-    <div class="bg-white rounded-lg shadow-md overflow-hidden mb-4">
-      <div class="p-4">
-        <h3 class="text-xl font-semibold mb-2">{{ notice.title }}</h3>
-        <p class="text-gray-800">{{ notice.description }}</p>
-      </div>
-      <div class="bg-gray-100 px-4 py-2">
-        <span class="text-gray-600"
-          >Posted on: {{ notice.created_at.strftime('%B %d, %Y') }}</span
-        >
-      </div>
+{% extends "base.html" %}
+{% block title %}Notice Board{% endblock %}
+{% block content %}
+<div class="max-w-3xl mx-auto px-4 py-6">
+  <h2 class="text-3xl font-bold mb-6">Notice Board</h2>
+  {% for notice in notices %}
+  <div class="bg-white rounded-lg shadow mb-4 overflow-hidden">
+    <div class="p-4">
+      <h3 class="text-xl font-semibold">{{ notice.title }}</h3>
+      <p class="text-gray-700 mt-2">{{ notice.description }}</p>
     </div>
-    {% endfor %}
+    <div class="bg-gray-100 px-4 py-2 text-sm text-gray-500">{{ notice.created_at.strftime('%B %d, %Y') }}</div>
   </div>
+  {% else %}
+  <p class="text-gray-500">No notices posted yet.</p>
+  {% endfor %}
 </div>
-
 {% endblock %}

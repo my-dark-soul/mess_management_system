@@ -1,58 +1,43 @@
-{% extends 'base.html' %} {% block title %} Bajar {% endblock %} {% block
-content %}
-<!-- This is here to the bajar list of this month -->
-<div class="mx-3">
-  <div class="max-w-3xl mx-auto mt-3">
-    <div class="flex items-center justify-between mb-4">
-      <h2 class="text-4xl font-semibold">Bajar List</h2>
-      <a
-        href="{{ url_for('add_items') }}"
-        class="flex items-center justify-center bg-blue-500 text-white rounded-full h-10 w-10 hover:bg-blue-600"
-      >
-        <svg
-          xmlns="http://www.w3.org/2000/svg"
-          class="h-6 w-6"
-          fill="none"
-          viewBox="0 0 24 24"
-          stroke="currentColor"
-        >
-          <path
-            stroke-linecap="round"
-            stroke-linejoin="round"
-            stroke-width="2"
-            d="M12 4v16m8-8H4"
-          />
-        </svg>
-      </a>
+{% extends "base.html" %}
+{% block title %}Bajar List{% endblock %}
+{% block content %}
+<div class="max-w-4xl mx-auto px-4 py-6">
+  <h2 class="text-3xl font-bold mb-6">Bajar List — {{ now.strftime('%B %Y') }}</h2>
+
+  {% if extra_items %}
+  <div class="bg-orange-50 border border-orange-200 rounded-lg p-4 mb-6">
+    <h3 class="font-bold text-orange-800 text-lg mb-3">Extra Costs This Month</h3>
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
+      {% for item in extra_items %}
+      <div class="flex justify-between bg-white rounded p-3 text-sm border border-orange-100">
+        <span>{{ item.bajarkari }}</span>
+        <span class="font-semibold">৳{{ item.total_cost }}</span>
+      </div>
+      {% endfor %}
+    </div>
+    <div class="flex justify-between font-bold mt-3 pt-3 border-t border-orange-200">
+      <span>Total Extra</span><span>৳{{ extra_total }}</span>
+    </div>
+    <div class="flex justify-between text-orange-700 text-sm mt-1">
+      <span>Per Member</span><span>৳{{ extra_per_head }}</span>
     </div>
   </div>
-</div>
+  {% endif %}
 
-<!-- Bajar List Card -->
-<div class="grid grid-cols-1 md:grid-cols-3 gap-4 mx-auto max-w-screen-lg my-2">
-  {% for bajar_item in bajar_list|reverse %}
-<div class="bg-white rounded-md shadow-md p-6 mb-4">
-    <h2 class="text-2xl font-semibold mb-4">Date: {{ bajar_item.bajar_date.strftime('%d-%m-%Y') }}</h2>
-    <div class="border-t border-gray-300 pt-4">
-        <div class="flex justify-between mb-2">
-            <span class="font-semibold">Name:</span>
-            <span class="text-gray-800">{{ bajar_item.bajarkari }}</span>
-        </div>
-        <div class="flex justify-between mb-2">
-            <span class="font-semibold">Meal:</span>
-            <span class="text-gray-800">{{ bajar_item.meal_cost }}</span>
-        </div>
-        <div class="flex justify-between mb-2">
-            <span class="font-semibold">Extra:</span>
-            <span class="text-gray-800">{{ bajar_item.extra }}</span>
-        </div>
-        <div class="flex justify-between mb-2 border-t mt-4">
-            <span class="font-semibold pt-3">Total Cost:</span>
-            <span class="text-gray-800 pt-3">{{ bajar_item.total_cost }}</span>
-        </div>
+  <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+    {% for item in bajar_list %}
+    <div class="bg-white rounded-lg shadow p-5">
+      <h3 class="text-lg font-semibold mb-3">{{ item.bajar_date.strftime('%d-%m-%Y') }}</h3>
+      <div class="space-y-2 text-sm border-t pt-3">
+        <div class="flex justify-between"><span class="font-medium">Name:</span><span>{{ item.bajarkari }}</span></div>
+        <div class="flex justify-between"><span class="font-medium">Meal:</span><span>৳{{ item.meal_cost }}</span></div>
+        {% if item.extra %}<div class="flex justify-between"><span class="font-medium">Extra:</span><span>৳{{ item.extra }}</span></div>{% endif %}
+        <div class="flex justify-between border-t pt-2 font-semibold"><span>Total:</span><span>৳{{ item.total_cost }}</span></div>
+      </div>
     </div>
+    {% else %}
+    <div class="col-span-3 text-center text-gray-500 py-10">No bajar records for this month.</div>
+    {% endfor %}
+  </div>
 </div>
-{% endfor %}
-</div>
-
 {% endblock %}

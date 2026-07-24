@@ -1,0 +1,23 @@
+{% extends "base.html" %}
+{% block title %}Manager Signin{% endblock %}
+{% block content %}
+<div class="flex items-center justify-center py-16">
+  <div class="bg-white p-8 rounded-lg shadow w-full max-w-md">
+    <h2 class="text-2xl font-semibold text-center mb-2">Manager Sign In</h2>
+    <p class="text-center text-sm text-gray-500 mb-6">Sign in with your phone number and manager password set by the monitor.</p>
+    {% if error %}<div class="bg-red-100 text-red-700 px-4 py-2 rounded mb-4">{{ error }}</div>{% endif %}
+    <form method="POST" action="/manager/signin" class="space-y-4">
+      <div>
+        <label class="block text-gray-700 font-medium mb-1">Phone</label>
+        <input type="text" name="phone" required class="w-full border border-gray-300 rounded px-3 py-2 focus:outline-none focus:ring focus:border-green-400"/>
+      </div>
+      <div>
+        <label class="block text-gray-700 font-medium mb-1">Password</label>
+        <input type="password" name="password" required class="w-full border border-gray-300 rounded px-3 py-2 focus:outline-none focus:ring focus:border-green-400"/>
+      </div>
+      <button type="submit" class="w-full bg-green-500 text-white font-semibold py-2 px-4 rounded hover:bg-green-600 transition">Sign In as Manager</button>
+      <p class="text-center text-sm mt-2">Monitor? <a href="/signin" class="text-blue-600 hover:underline">Monitor Login</a></p>
+    </form>
+  </div>
+</div>
+{% endblock %}

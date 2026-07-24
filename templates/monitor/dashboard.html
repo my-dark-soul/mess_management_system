@@ -1,0 +1,297 @@
+{% extends "base.html" %}
+{% block title %}Monitor Dashboard{% endblock %}
+
+{% block content %}
+<div class="max-w-7xl mx-auto px-4 py-6 space-y-6">
+
+  <!-- Header -->
+  <div class="flex items-center justify-between">
+    <h1 class="text-3xl font-bold text-gray-800">Monitor Dashboard</h1>
+    <div class="flex gap-2">
+      <a href="/monitor/add-member" class="bg-blue-500 text-white px-4 py-2 rounded-md hover:bg-blue-600 text-sm font-semibold">+ Add Member</a>
+      <form action="/monitor/archive-month" method="POST" onsubmit="return confirm('Archive this month and clear all records? This cannot be undone.')">
+        <button type="submit" class="bg-orange-500 text-white px-4 py-2 rounded-md hover:bg-orange-600 text-sm font-semibold">Archive Month</button>
+      </form>
+      <a href="/signout" class="bg-red-500 text-white px-4 py-2 rounded-md hover:bg-red-600 text-sm font-semibold">Signout</a>
+    </div>
+  </div>
+
+  <!-- Error banner -->
+  {% if error %}
+  <div class="bg-red-100 border border-red-400 text-red-800 px-4 py-3 rounded">{{ error }}</div>
+  {% endif %}
+
+  <div class="grid grid-cols-12 gap-6">
+
+    <!-- LEFT: Members -->
+    <div class="col-span-12 lg:col-span-3 space-y-4">
+      <h2 class="text-xl font-semibold text-gray-700">Members</h2>
+      {% for member in members %}
+      <div class="bg-white rounded-lg shadow p-4 space-y-3">
+        <div class="flex items-center gap-3 bg-gray-100 p-3 rounded-md">
+          <img src="/static/{{ member.photo if member.photo else 'member_photo/default.jpg' }}"
+               class="w-12 h-12 rounded-full object-cover"/>
+          <div>
+            <p class="font-semibold">{{ member.name }}</p>
+            <p class="text-xs text-gray-500">{{ member.phone }}</p>
+            <span class="text-xs px-2 py-0.5 rounded-full {{ 'bg-green-100 text-green-700' if member.role == 'manager' else 'bg-gray-200 text-gray-600' }}">
+              {{ member.role }}
+            </span>
+          </div>
+        </div>
+
+        <!-- Change role form -->
+        <form action="/monitor/change-role/{{ member.id }}" method="POST" class="space-y-2">
+          <select name="role" class="w-full border border-gray-300 rounded px-2 py-1 text-sm focus:outline-none focus:ring focus:border-blue-400">
+            <option value="boder" {% if member.role == 'boder' %}selected{% endif %}>Boder</option>
+            <option value="manager" {% if member.role == 'manager' %}selected{% endif %}>Manager</option>
+          </select>
+          <input type="password" name="manager_password" placeholder="Set manager password (if changing to manager)"
+                 class="w-full border border-gray-300 rounded px-2 py-1 text-sm focus:outline-none focus:ring focus:border-blue-400"/>
+          <button type="submit" class="w-full bg-blue-500 text-white py-1 rounded hover:bg-blue-600 text-sm transition">
+            Change Role
+          </button>
+        </form>
+
+        <!-- Delete -->
+        <form action="/monitor/delete-member/{{ member.id }}" method="POST"
+              onsubmit="return confirm('Remove {{ member.name }}? All their records will be deleted.')">
+          <button type="submit" class="w-full bg-red-500 text-white py-1 rounded hover:bg-red-600 text-sm transition">
+            Remove Member
+          </button>
+        </form>
+      </div>
+      {% endfor %}
+    </div>
+
+    <!-- CENTER -->
+    <div class="col-span-12 lg:col-span-6 space-y-6">
+
+      <!-- Meal Rate -->
+      <div class="bg-white p-4 rounded-lg shadow">
+        <h2 class="text-2xl font-bold text-center mb-3">Meal Rate</h2>
+        <div class="grid grid-cols-3 gap-4">
+          <div class="bg-slate-500 p-3 rounded text-center text-white">
+            <p class="font-semibold">Total Meals</p>
+            <p class="text-xl">{{ total_meals }}</p>
+          </div>
+          <div class="bg-slate-500 p-3 rounded text-center text-white">
+            <p class="font-semibold">Expense</p>
+            <p class="text-xl">৳{{ total }}</p>
+          </div>
+          <div class="bg-slate-500 p-3 rounded text-center text-white">
+            <p class="font-semibold">Meal Rate</p>
+            <p class="text-xl">৳{{ meal_rate }}</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Seat Rent Table -->
+      <div class="bg-white p-4 rounded-lg shadow">
+        <h2 class="text-xl font-bold mb-3">{{ month_name }} — Seat Rent Collection</h2>
+        <div class="overflow-x-auto">
+          <table id="seatRentTable" class="min-w-full border border-gray-200 rounded text-sm">
+            <thead class="bg-gray-100">
+              <tr>
+                <th class="px-3 py-2 text-left">Name</th>
+                <th class="px-3 py-2 text-left">Seat Rent</th>
+                <th class="px-3 py-2 text-left">Wifi Bill</th>
+                <th class="px-3 py-2 text-left">Chef Bill</th>
+                <th class="px-3 py-2 text-left">Total</th>
+                <th class="px-3 py-2 text-left">Paid</th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for member in members %}
+              {% set sr = seat_rents.get(member.id) %}
+              <tr data-member-id="{{ member.id }}" class="border-t">
+                <td class="px-3 py-2">{{ member.name }}</td>
+                <td class="px-3 py-2"><input type="number" class="seat-rent w-24 border rounded px-2 py-1" value="{{ sr.seat_rent if sr else 0 }}"/></td>
+                <td class="px-3 py-2"><input type="number" class="wifi-bill w-24 border rounded px-2 py-1" value="{{ sr.wifi_bill if sr else 0 }}"/></td>
+                <td class="px-3 py-2"><input type="number" class="chef-bill w-24 border rounded px-2 py-1" value="{{ sr.chef_bill if sr else 0 }}"/></td>
+                <td class="px-3 py-2 seat-total font-semibold">{{ (sr.seat_rent + sr.wifi_bill + sr.chef_bill) | round(2) if sr else 0 }}</td>
+                <td class="px-3 py-2"><input type="checkbox" class="paid-check" {{ 'checked' if sr and sr.paid else '' }}/></td>
+              </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+        <button id="saveSeatRentBtn" class="mt-3 bg-green-600 text-white font-semibold py-2 px-4 rounded hover:bg-green-700">
+          Save Seat Rent
+        </button>
+      </div>
+
+
+      <!-- Notice form -->
+      <div class="bg-white p-6 rounded-lg shadow">
+        <h2 class="text-xl font-bold mb-4">Add Notice</h2>
+        <form action="/monitor/add-notice" method="POST" class="space-y-3">
+          <input type="text" name="title" placeholder="Title" required
+                 class="w-full border border-gray-300 rounded px-3 py-2 focus:outline-none focus:ring focus:border-blue-400"/>
+          <textarea name="description" rows="3" placeholder="Description" required
+                    class="w-full border border-gray-300 rounded px-3 py-2 focus:outline-none focus:ring focus:border-blue-400"></textarea>
+          <button type="submit" class="bg-green-500 text-white py-2 px-4 rounded hover:bg-green-600">Submit</button>
+        </form>
+      </div>
+
+      <!-- Cleaning form -->
+      <div class="bg-white p-6 rounded-lg shadow">
+        <h2 class="text-xl font-bold mb-4">Add Cleaner</h2>
+        <form action="/monitor/add-cleaning" method="POST" class="space-y-3">
+          <input type="date" name="cleaning_date" required
+                 class="w-full border border-gray-300 rounded px-3 py-2 focus:outline-none focus:ring"/>
+          <input type="text" name="cleaner1" placeholder="Cleaner 1" required
+                 class="w-full border border-gray-300 rounded px-3 py-2 focus:outline-none focus:ring"/>
+          <input type="text" name="cleaner2" placeholder="Cleaner 2 (optional)"
+                 class="w-full border border-gray-300 rounded px-3 py-2 focus:outline-none focus:ring"/>
+          <button type="submit" class="bg-blue-500 text-white py-2 px-4 rounded hover:bg-blue-600">Submit</button>
+        </form>
+      </div>
+
+      <!-- Fine form -->
+      <div class="bg-white p-6 rounded-lg shadow">
+        <h2 class="text-xl font-bold mb-4">Add Fine</h2>
+        <form action="/monitor/add-fine" method="POST" class="space-y-3">
+          <input type="date" name="fine_date" required class="w-full border border-gray-300 rounded px-3 py-2 focus:outline-none focus:ring"/>
+          <input type="text" name="criminal" placeholder="Member Name" required class="w-full border border-gray-300 rounded px-3 py-2 focus:outline-none focus:ring"/>
+          <input type="text" name="reason" placeholder="Reason" required class="w-full border border-gray-300 rounded px-3 py-2 focus:outline-none focus:ring"/>
+          <input type="number" name="fine_amount" placeholder="Fine Amount" required class="w-full border border-gray-300 rounded px-3 py-2 focus:outline-none focus:ring"/>
+          <input type="number" name="total_fine" placeholder="Total Fine" required class="w-full border border-gray-300 rounded px-3 py-2 focus:outline-none focus:ring"/>
+          <button type="submit" class="bg-red-500 text-white py-2 px-4 rounded hover:bg-red-600">Submit</button>
+        </form>
+      </div>
+
+    </div>
+
+    <!-- RIGHT: Notices, Cleanings, Fines, Archives -->
+    <div class="col-span-12 lg:col-span-3 space-y-4">
+
+      <!-- Notices -->
+      <div class="bg-white p-4 rounded-lg shadow">
+        <h2 class="text-xl font-bold mb-3">Notices</h2>
+        {% for notice in notices %}
+        <div class="bg-gray-100 rounded p-3 mb-3">
+          <h3 class="font-semibold">{{ notice.title }}</h3>
+          <p class="text-sm text-gray-700 mt-1">{{ notice.description }}</p>
+          <p class="text-xs text-gray-500 mt-1">{{ notice.created_at.strftime('%B %d, %Y') }}</p>
+          <form action="/monitor/delete-notice/{{ notice.id }}" method="POST" class="mt-2">
+            <button type="submit" class="w-full bg-red-700 text-white text-sm py-1 rounded hover:bg-red-800">Delete</button>
+          </form>
+        </div>
+        {% endfor %}
+      </div>
+
+      <!-- Cleanings -->
+      <div class="bg-white p-4 rounded-lg shadow">
+        <h2 class="text-xl font-bold mb-3">Cleaning Schedule</h2>
+        {% for c in cleanings %}
+        <div class="bg-gray-100 rounded p-3 mb-3">
+          <p class="font-semibold">{{ c.cleaning_date.strftime('%d %B, %Y') }}</p>
+          <p class="text-sm">Cleaner 1: {{ c.cleaner1 }}</p>
+          {% if c.cleaner2 %}<p class="text-sm">Cleaner 2: {{ c.cleaner2 }}</p>{% endif %}
+          <form action="/monitor/delete-cleaning/{{ c.id }}" method="POST" class="mt-2">
+            <button type="submit" class="w-full bg-red-700 text-white text-sm py-1 rounded hover:bg-red-800">Delete</button>
+          </form>
+        </div>
+        {% endfor %}
+      </div>
+
+      <!-- Fines -->
+      <div class="bg-white p-4 rounded-lg shadow">
+        <h2 class="text-xl font-bold mb-3">Fines</h2>
+        {% for fine in fine_lists %}
+        <div class="bg-gray-100 rounded p-3 mb-3">
+          <p class="font-semibold">{{ fine.criminal }}</p>
+          <p class="text-sm text-gray-600">{{ fine.reason }}</p>
+          <p class="text-sm">Amount: ৳{{ fine.fine_amount }}</p>
+          <p class="text-sm font-semibold">Total: ৳{{ fine.total_fine }}</p>
+          <p class="text-xs text-gray-500">{{ fine.fine_date.strftime('%d-%m-%Y') }}</p>
+          <form action="/monitor/delete-fine/{{ fine.id }}" method="POST" class="mt-2">
+            <button type="submit" class="w-full bg-red-700 text-white text-sm py-1 rounded hover:bg-red-800">Delete</button>
+          </form>
+        </div>
+        {% endfor %}
+      </div>
+
+      <!-- Monthly Archive -->
+      <div class="bg-white p-4 rounded-lg shadow">
+        <h2 class="text-xl font-bold mb-3">Monthly Archives</h2>
+        {% if archives %}
+        {% for archive in archives %}
+        <div class="bg-blue-50 border border-blue-200 rounded p-3 mb-2 text-sm">
+          <p class="font-semibold text-blue-800">
+            {{ ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'][archive.month-1] }} {{ archive.year }}
+          </p>
+          <p>Members: {{ archive.total_members }}</p>
+          <p>Total Meals: {{ archive.total_meals }}</p>
+          <p>Expense: ৳{{ archive.total_expense }}</p>
+          <p>Meal Rate: ৳{{ archive.meal_rate }}</p>
+        </div>
+        {% endfor %}
+        {% else %}
+        <p class="text-gray-500 text-sm">No archived months yet.</p>
+        {% endif %}
+      </div>
+
+    </div>
+  </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+  // Seat Rent — live total
+  document.querySelectorAll("#seatRentTable tbody tr").forEach(row => {
+    const inputs = row.querySelectorAll(".seat-rent, .wifi-bill, .chef-bill");
+    const totalCell = row.querySelector(".seat-total");
+    const calc = () => {
+      let t = 0;
+      inputs.forEach(i => t += parseFloat(i.value) || 0);
+      totalCell.textContent = t.toFixed(2);
+    };
+    inputs.forEach(i => i.addEventListener("input", calc));
+  });
+
+  // Save Seat Rent
+  document.getElementById("saveSeatRentBtn").addEventListener("click", async () => {
+    const rows = document.querySelectorAll("#seatRentTable tbody tr");
+    const data = Array.from(rows).map(row => ({
+      member_id: parseInt(row.dataset.memberId),
+      seat_rent: parseFloat(row.querySelector(".seat-rent").value) || 0,
+      wifi_bill: parseFloat(row.querySelector(".wifi-bill").value) || 0,
+      chef_bill: parseFloat(row.querySelector(".chef-bill").value) || 0,
+      paid: row.querySelector(".paid-check").checked,
+    }));
+    const res = await fetch("/monitor/save-seat-rent", {
+      method: "POST", headers: {"Content-Type": "application/json"}, body: JSON.stringify(data)
+    });
+    const json = await res.json();
+    alert(json.message);
+  });
+
+  // Financial — live total
+  document.querySelectorAll("#financialTable tbody tr").forEach(row => {
+    const meal = row.querySelector(".meal-input");
+    const gas = row.querySelector(".gas-input");
+    const total = row.querySelector(".total-cell");
+    const calc = () => total.textContent = ((parseFloat(meal.value)||0) + (parseFloat(gas.value)||0)).toFixed(2);
+    meal.addEventListener("input", calc);
+    gas.addEventListener("input", calc);
+  });
+
+  // Save Financial
+  document.getElementById("saveFinancialBtn").addEventListener("click", async () => {
+    const rows = document.querySelectorAll("#financialTable tbody tr");
+    const data = Array.from(rows).map(row => ({
+      member_id: parseInt(row.dataset.memberId),
+      meal_amount: parseFloat(row.querySelector(".meal-input").value) || 0,
+      gas_amount: parseFloat(row.querySelector(".gas-input").value) || 0,
+    }));
+    const res = await fetch("/monitor/save-financial", {
+      method: "POST", headers: {"Content-Type": "application/json"}, body: JSON.stringify(data)
+    });
+    const json = await res.json();
+    alert(json.message);
+  });
+</script>
+{% endblock %}
