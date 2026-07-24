@@ -1,0 +1,5 @@
+## Details
+
+- First stable relase
+- Calculating all of the details
+- Add Member feature
