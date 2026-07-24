@@ -4,3 +4,4 @@ flask_sqlalchemy
 flask_migrate
 Werkzeug
 pytest-shutil
+reportlab

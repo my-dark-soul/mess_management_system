@@ -4,7 +4,7 @@ content %}
 <div class="mx-3">
   <div class="max-w-3xl mx-auto mt-3">
     <div class="flex items-center justify-between mb-4">
-      <h2 class="text-2xl font-semibold">Bajar List</h2>
+      <h2 class="text-4xl font-semibold">Bajar List</h2>
       <a
         href="{{ url_for('add_items') }}"
         class="flex items-center justify-center bg-blue-500 text-white rounded-full h-10 w-10 hover:bg-blue-600"
@@ -30,7 +30,7 @@ content %}
 
 <!-- Bajar List Card -->
 <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mx-auto max-w-screen-lg my-2">
-  {% for bajar_item in bajar_list %}
+  {% for bajar_item in bajar_list|reverse %}
 <div class="bg-white rounded-md shadow-md p-6 mb-4">
     <h2 class="text-2xl font-semibold mb-4">Date: {{ bajar_item.bajar_date.strftime('%d-%m-%Y') }}</h2>
     <div class="border-t border-gray-300 pt-4">
@@ -53,8 +53,6 @@ content %}
     </div>
 </div>
 {% endfor %}
-
-  
 </div>
 
 {% endblock %}

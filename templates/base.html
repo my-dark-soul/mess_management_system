@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
@@ -10,7 +10,18 @@
       type="image/x-icon"
     />
     <link href="../static/dist/output.css" rel="stylesheet" />
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.25/jspdf.plugin.autotable.min.js"></script>
+    <link
+      href="https://fonts.googleapis.com/css2?family=Lexend:wght@300;400;500;600;700&display=swap"
+      rel="stylesheet"
+    />
   </head>
+  <style>
+    body {
+      font-family: "Lexend", sans-serif;
+    }
+  </style>
 
   <body class="bg-gray-300">
     <nav class="bg-gray-800 py-4">
@@ -38,6 +49,11 @@
           </svg>
         </button>
         <div class="hidden md:flex lg:flex space-x-4">
+          <a
+            href="{{ url_for('monitor') }}"
+            class="text-white block py-2 px-3 hover:bg-gray-700 hover:rounded transition-all duration-300"
+            >Monitor</a
+          >
           <a
             href="{{ url_for('home') }}"
             class="text-white block py-2 px-3 hover:bg-gray-700 hover:rounded transition-all duration-300"
@@ -110,7 +126,11 @@
 
     <footer class="bg-gray-800 text-white py-4 bottom-0 w-full">
       <div class="max-w-7xl mx-auto px-4">
-        <p class="text-center">Location: [Your Location]</p>
+        <div class="text-white font-bold text-center">
+          Mess Location: {{ mess_location if mess_location else "Not set" }}
+        </div>
+
+        <p class="text-center">Contact: <b>{{ contact }}</b></p>
         <p class="text-center">
           &copy; 2024. All rights are reserved by Maruf Hasan.
         </p>

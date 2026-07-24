@@ -16,7 +16,7 @@ content %}
     <div class="p-4">
       <img
         class="w-full h-64 object-cover mb-4 rounded-md"
-        src="{{ url_for('static', filename=member.photo) }}"
+        src="{{ url_for('static', filename=member.photo if member.photo else 'photo/default.jpg') }}"
         alt="Member Photo"
       />
       <div class="text-gray-800">
@@ -35,7 +35,6 @@ content %}
   </div>
   {% endfor %}
 </div>
-
 <div class="mx-2">
   <div class="bg-white text-center py-4 my-2 rounded-md">
     <a
@@ -45,5 +44,8 @@ content %}
     >
   </div>
 </div>
+
+
+
 
 {% endblock %}
