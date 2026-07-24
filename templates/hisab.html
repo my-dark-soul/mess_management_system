@@ -1,0 +1,185 @@
+{% extends "base.html" %}
+{% block title %}Hisab Statement{% endblock %}
+
+{% block content %}
+<div class="max-w-7xl mx-auto px-2 sm:px-4 py-4 md:py-6 space-y-4 md:space-y-6">
+    
+    <h2 class="text-2xl md:text-3xl font-bold text-gray-800 border-b pb-3">
+        Hisab Matrix — {{ now.strftime('%B %Y') }}
+    </h2>
+
+    <div class="border-b border-gray-200 overflow-x-auto whitespace-nowrap custom-scrollbar -mx-2 px-2 sm:mx-0 sm:px-0">
+        <nav class="flex space-x-6 md:space-x-8" aria-label="Tabs">
+            <button onclick="switchTab('meal')" id="tab-btn-meal" class="tab-btn border-b-2 border-blue-500 py-3 md:py-4 px-1 text-sm font-semibold text-blue-600 transition-all">
+                Meal Log
+            </button>
+            <button onclick="switchTab('bajar')" id="tab-btn-bajar" class="tab-btn border-b-2 border-transparent py-3 md:py-4 px-1 text-sm font-medium text-gray-500 hover:text-gray-700 hover:border-gray-300 transition-all">
+                Bajar Records
+            </button>
+            <button onclick="switchTab('savings')" id="tab-btn-savings" class="tab-btn border-b-2 border-transparent py-3 md:py-4 px-1 text-sm font-medium text-gray-500 hover:text-gray-700 hover:border-gray-300 transition-all">
+                Savings Ledger
+            </button>
+            <button onclick="switchTab('final')" id="tab-btn-final" class="tab-btn border-b-2 border-transparent py-3 md:py-4 px-1 text-sm font-medium text-gray-500 hover:text-gray-700 hover:border-gray-300 transition-all">
+                Final Statement
+            </button>
+        </nav>
+    </div>
+
+    <div class="bg-white rounded-lg shadow border border-gray-100 p-3 md:p-6">
+        
+        <div id="tab-content-meal" class="tab-panel space-y-4">
+            <h3 class="text-lg md:text-xl font-bold text-gray-700">Monthly Meal Distribution</h3>
+            <div class="w-full overflow-x-auto border border-gray-200 rounded-lg custom-scrollbar">
+                <table class="min-w-full text-xs md:text-sm divide-y divide-gray-200">
+                    <thead class="bg-gray-50">
+                        <tr>
+                            <th class="px-3 py-2 md:px-4 md:py-3 text-left font-semibold text-gray-600 whitespace-nowrap">Name</th>
+                            {% for day in range(1, days_in_month + 1) %}
+                            <th class="px-1.5 py-2 text-center text-gray-500 font-medium min-w-[28px]">{{ day }}</th>
+                            {% endfor %}
+                        </tr>
+                    </thead>
+                    <tbody class="divide-y divide-gray-100 bg-white">
+                        {% for m in members %}
+                        <tr class="hover:bg-gray-50 transition-colors">
+                            <td class="px-3 py-2 md:px-4 md:py-3 font-medium text-gray-900 whitespace-nowrap">{{ m.name }}</td>
+                            {% for day in range(1, days_in_month + 1) %}
+                            <td class="px-1.5 py-2 text-center text-gray-600 whitespace-nowrap">
+                                {{ meal_data[m.id].get(day, '-') }}
+                            </td>
+                            {% endfor %}
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <div id="tab-content-bajar" class="tab-panel hidden space-y-4">
+            <h3 class="text-lg md:text-xl font-bold text-gray-700">Bajar & Extra Costs Breakdown</h3>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6">
+                <div class="border border-gray-200 rounded-lg p-3 md:p-4 space-y-2 bg-gray-50/50">
+                    <h4 class="font-bold text-gray-800 border-b pb-1 text-sm md:text-base">Bajar Entries</h4>
+                    <div class="divide-y divide-gray-100 max-h-64 overflow-y-auto pr-1">
+                        {% for item in bajar_items %}
+                        <div class="flex justify-between text-xs md:text-sm py-2">
+                            <span class="text-gray-600">{{ item.bajarkari }}</span>
+                            <span class="font-medium text-gray-900">৳{{ "%.2f"|format(item.meal_cost) }}</span>
+                        </div>
+                        {% endfor %}
+                    </div>
+                    <div class="flex justify-between font-bold pt-2 border-t text-green-600 text-sm md:text-base">
+                        <span>Total Bajar</span><span>৳{{ "%.2f"|format(bajar_total) }}</span>
+                    </div>
+                </div>
+                <div class="border border-gray-200 rounded-lg p-3 md:p-4 space-y-2 bg-gray-50/50">
+                    <h4 class="font-bold text-gray-800 border-b pb-1 text-sm md:text-base">Extra Items</h4>
+                    <div class="divide-y divide-gray-100 max-h-64 overflow-y-auto pr-1">
+                        {% for item in extra_items %}
+                        <div class="flex justify-between text-xs md:text-sm py-2">
+                            <span class="text-gray-600">{{ item.extra_name }}</span>
+                            <span class="font-medium text-gray-900">৳{{ "%.2f"|format(item.total_cost) }}</span>
+                        </div>
+                        {% endfor %}
+                    </div>
+                    <div class="flex justify-between font-bold pt-2 border-t text-blue-600 text-sm md:text-base">
+                        <span>Total Extra</span><span>৳{{ "%.2f"|format(extra_total) }}</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div id="tab-content-savings" class="tab-panel hidden space-y-4">
+            <h3 class="text-lg md:text-xl font-bold text-gray-700">Deposits Ledger</h3>
+            <div class="w-full overflow-x-auto border border-gray-200 rounded-lg custom-scrollbar">
+                <table class="min-w-full text-xs md:text-sm divide-y divide-gray-200">
+                    <thead class="bg-gray-50">
+                        <tr>
+                            <th class="px-3 py-2.5 md:px-4 md:py-3 text-left font-semibold text-gray-600 whitespace-nowrap">Name</th>
+                            <th class="px-3 py-2.5 md:px-4 md:py-3 text-right font-semibold text-gray-600 whitespace-nowrap">Meal Fund Saved</th>
+                            <th class="px-3 py-2.5 md:px-4 md:py-3 text-right font-semibold text-gray-600 whitespace-nowrap">Gas/Utility Saved</th>
+                            <th class="px-3 py-2.5 md:px-4 md:py-3 text-right font-semibold text-gray-600 whitespace-nowrap">Gross Total</th>
+                        </tr>
+                    </thead>
+                    <tbody class="divide-y divide-gray-100 bg-white">
+                        {% for m in members %}
+                        {% set meal_s = member_saved_meal.get(m.id, 0) %}
+                        {% set gas_s = member_saved_gas.get(m.id, 0) %}
+                        <tr class="hover:bg-gray-50 transition-colors">
+                            <td class="px-3 py-2.5 md:px-4 md:py-3 font-medium text-gray-900 whitespace-nowrap">{{ m.name }}</td>
+                            <td class="px-3 py-2.5 md:px-4 md:py-3 text-right text-gray-600 whitespace-nowrap">৳{{ "%.2f"|format(meal_s) }}</td>
+                            <td class="px-3 py-2.5 md:px-4 md:py-3 text-right text-gray-600 whitespace-nowrap">৳{{ "%.2f"|format(gas_s) }}</td>
+                            <td class="px-3 py-2.5 md:px-4 md:py-3 text-right font-bold text-gray-900 whitespace-nowrap">৳{{ "%.2f"|format(meal_s + gas_s) }}</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <div id="tab-content-final" class="tab-panel hidden space-y-4">
+            <h3 class="text-lg md:text-xl font-bold text-gray-700">Net Financial Balances</h3>
+            <div class="w-full overflow-x-auto border border-gray-200 rounded-lg custom-scrollbar">
+                <table class="min-w-full text-xs md:text-sm divide-y divide-gray-200">
+                    <thead class="bg-gray-800 text-white">
+                        <tr>
+                            <th class="px-3 py-2.5 md:px-4 md:py-3 text-left font-semibold whitespace-nowrap">Name</th>
+                            <th class="px-3 py-2.5 md:px-4 md:py-3 text-center font-semibold whitespace-nowrap">Meals</th>
+                            <th class="px-3 py-2.5 md:px-4 md:py-3 text-right font-semibold whitespace-nowrap">Meal Bill</th>
+                            <th class="px-3 py-2.5 md:px-4 md:py-3 text-right font-semibold whitespace-nowrap">Extra Bill</th>
+                            <th class="px-3 py-2.5 md:px-4 md:py-3 text-right font-semibold whitespace-nowrap">Total Owed</th>
+                            <th class="px-3 py-2.5 md:px-4 md:py-3 text-right font-semibold whitespace-nowrap">Total Deposited</th>
+                            <th class="px-3 py-2.5 md:px-4 md:py-3 text-right font-semibold whitespace-nowrap">Net Balance</th>
+                        </tr>
+                    </thead>
+                    <tbody class="divide-y divide-gray-100 bg-white">
+                        {% for m in members %}
+                            {% set meals = member_meals.get(m.id, 0) %}
+                            {% set saved = (member_saved_meal.get(m.id, 0) + member_saved_gas.get(m.id, 0)) %}
+                            {% set meal_bill = (meal_rate * meals) | round(2) %}
+                            {% set extra_bill = extra_per_person | float %}
+                            {% set total_bill = (meal_bill + extra_bill) | round(2) %}
+                            {% set balance = (saved - total_bill) | round(2) %}
+                        <tr class="hover:bg-gray-50 transition-colors">
+                            <td class="px-3 py-2.5 md:px-4 md:py-3 font-semibold text-gray-900 whitespace-nowrap">{{ m.name }}</td>
+                            <td class="px-3 py-2.5 md:px-4 md:py-3 text-center text-gray-600 whitespace-nowrap">{{ meals }}</td>
+                            <td class="px-3 py-2.5 md:px-4 md:py-3 text-right text-gray-600 whitespace-nowrap">৳{{ "%.2f"|format(meal_bill) }}</td>
+                            <td class="px-3 py-2.5 md:px-4 md:py-3 text-right text-gray-600 whitespace-nowrap">৳{{ "%.2f"|format(extra_bill) }}</td>
+                            <td class="px-3 py-2.5 md:px-4 md:py-3 text-right font-medium text-gray-800 whitespace-nowrap">৳{{ "%.2f"|format(total_bill) }}</td>
+                            <td class="px-3 py-2.5 md:px-4 md:py-3 text-right text-gray-600 whitespace-nowrap">৳{{ "%.2f"|format(saved) }}</td>
+                            <td class="px-3 py-2.5 md:px-4 md:py-3 text-right font-bold whitespace-nowrap {{ 'text-green-600' if balance >= 0 else 'text-red-600' }}">
+                                ৳{{ "%.2f"|format(balance) }}
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+    </div>
+</div>
+
+<script>
+function switchTab(tabId) {
+    document.querySelectorAll('.tab-panel').forEach(panel => panel.classList.add('hidden'));
+    document.getElementById(`tab-content-${tabId}`).classList.remove('hidden');
+    
+    document.querySelectorAll('.tab-btn').forEach(btn => {
+        btn.classList.remove('border-blue-500', 'text-blue-600', 'font-semibold');
+        btn.classList.add('border-transparent', 'text-gray-500', 'font-medium');
+    });
+    
+    const targetBtn = document.getElementById(`tab-btn-${tabId}`);
+    targetBtn.classList.remove('border-transparent', 'text-gray-500', 'font-medium');
+    targetBtn.classList.add('border-blue-500', 'text-blue-600', 'font-semibold');
+}
+</script>
+
+<style>
+  /* Elegant mini scrollbars to allow effortless touch swipes without shifting content layouts */
+  .custom-scrollbar::-webkit-scrollbar { height: 5px; }
+  .custom-scrollbar::-webkit-scrollbar-track { background: #f8fafc; }
+  .custom-scrollbar::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 3px; }
+</style>
+{% endblock %}

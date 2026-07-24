@@ -2,7 +2,7 @@ from fastapi import APIRouter, Request, Depends, Form, UploadFile, File
 from fastapi.responses import RedirectResponse, HTMLResponse, JSONResponse
 from fastapi.templating import Jinja2Templates
 from sqlalchemy.orm import Session
-from sqlalchemy import func
+from sqlalchemy import func, extract
 from database import get_db
 from models import (Monitor, Member, MealRecord, Item, Fine, Notice,
                     Cleaning, SavedAmount, GasRecord, SeatRent, MonthlyArchive)
@@ -54,21 +54,43 @@ async def dashboard(request: Request, db: Session = Depends(get_db)):
     total_expense = db.query(func.sum(Item.total_cost)).filter_by(entry_type="bajar").scalar() or 0
     meal_rate = round(total_expense / total_meals, 2) if total_meals > 0 else 0
 
-    member_meals = {
-        m.id: db.query(func.sum(MealRecord.meal_count))
-                 .filter(MealRecord.member_id == m.id).scalar() or 0
-        for m in members
-    }
-    member_saved_meal = {
-        m.id: db.query(func.sum(SavedAmount.meal_amount))
-                 .filter(SavedAmount.member_id == m.id).scalar() or 0
-        for m in members
-    }
-    member_saved_gas = {
-        m.id: db.query(func.sum(SavedAmount.gas_amount))
-                 .filter(SavedAmount.member_id == m.id).scalar() or 0
-        for m in members
-    }
+    # ── FIXED: MONTHLY ISOLATION FOR FRESH DASHBOARDS ──
+    # 1. Bulk get total meals per member ONLY for the current month
+    meal_totals = (
+        db.query(MealRecord.member_id, func.sum(MealRecord.meal_count))
+        .filter(
+            extract('month', MealRecord.meal_date) == now.month,
+            extract('year', MealRecord.meal_date) == now.year
+        )
+        .group_by(MealRecord.member_id)
+        .all()
+    )
+    member_meals = {m_id: count or 0 for m_id, count in meal_totals}
+
+    # 2. Bulk get saved meal funds per member ONLY for the current month
+    saved_meals = (
+        db.query(SavedAmount.member_id, func.sum(SavedAmount.meal_amount))
+        .filter(SavedAmount.month == now.month, SavedAmount.year == now.year)
+        .group_by(SavedAmount.member_id)
+        .all()
+    )
+    member_saved_meal = {m_id: amt or 0 for m_id, amt in saved_meals}
+
+    # 3. Bulk get saved gas funds per member ONLY for the current month
+    saved_gas = (
+        db.query(SavedAmount.member_id, func.sum(SavedAmount.gas_amount))
+        .filter(SavedAmount.month == now.month, SavedAmount.year == now.year)
+        .group_by(SavedAmount.member_id)
+        .all()
+    )
+    member_saved_gas = {m_id: amt or 0 for m_id, amt in saved_gas}
+
+    # Fill in fallback zeros for members without records yet (like your brand new manager!)
+    for m in members:
+        if m.id not in member_meals: member_meals[m.id] = 0
+        if m.id not in member_saved_meal: member_saved_meal[m.id] = 0
+        if m.id not in member_saved_gas: member_saved_gas[m.id] = 0
+    # ───────────────────────────────────────────────────
 
     # Seat rent for current month
     seat_rents = {
@@ -126,49 +148,63 @@ async def add_member(request: Request,
     return RedirectResponse("/monitor/dashboard", status_code=302)
 
 
-# ── Delete Member ────────────────────────────────────────────────────────────
+# ── Soft Delete Member ───────────────────────────────────────────────────────
 
 @router.post("/delete-member/{member_id}")
-async def delete_member(member_id: int, request: Request,
-                         db: Session = Depends(get_db)):
+async def delete_member(member_id: int, request: Request, db: Session = Depends(get_db)):
     if r := guard(request): return r
+    
     member = db.get(Member, member_id)
-    if member:
-        db.delete(member)
-        db.commit()
-    return RedirectResponse("/monitor/dashboard", status_code=302)
+    if not member:
+        return RedirectResponse("/monitor/dashboard?error=Member+not+found", status_code=302)
+
+    if member.role == "manager":
+        return RedirectResponse("/monitor/dashboard?error=Cannot+remove+an+active+manager", status_code=302)
+
+    # SOFT DELETE: Do NOT touch MealRecord or SavedAmount. Just flip the active switch.
+    member.is_active = False
+    db.commit()
+    
+    return RedirectResponse(f"/monitor/dashboard?success=Member+{member.name}+removed+from+active+list", status_code=302)
 
 
-# ── Change Role ──────────────────────────────────────────────────────────────
+# ── Change Role ─────────────────────────────────────────────────────────────
 
 @router.post("/change-role/{member_id}")
 async def change_role(member_id: int, request: Request,
                       role: str = Form(...),
-                      manager_password: str = Form(""),
+                      manager_password: str = Form(None), 
                       db: Session = Depends(get_db)):
     if r := guard(request): return r
+    
     member = db.get(Member, member_id)
     if not member:
-        return RedirectResponse("/monitor/dashboard", status_code=302)
+        return RedirectResponse("/monitor/dashboard?error=Member+not+found", status_code=302)
 
-    # Only one manager allowed
+    # 1. Validation for the Manager role
     if role == "manager":
         existing_manager = db.query(Member).filter_by(role="manager").first()
+        
+        # If someone else is already the manager, reject the change
         if existing_manager and existing_manager.id != member_id:
-            return templates.TemplateResponse("monitor/dashboard.html", {
-                "request": request,
-                "error": f"A manager already exists: {existing_manager.name}. Remove their manager role first."
-            })
-        if manager_password:
-            member.manager_password = hash_password(manager_password)
+            return RedirectResponse(
+                f"/monitor/dashboard?error=A+manager+already+exists:+{existing_manager.name}", 
+                status_code=302
+            )
+        
+        # Hash and update password if one was provided in the form
+        if manager_password and manager_password.strip():
+            member.manager_password = hash_password(manager_password.strip())
 
-    # Demoting from manager: clear password
+    # 2. Reset security credentials if demoting a manager back to a boder
     if role == "boder" and member.role == "manager":
         member.manager_password = None
 
+    # 3. Apply role change and commit execution
     member.role = role
     db.commit()
-    return RedirectResponse("/monitor/dashboard", status_code=302)
+    
+    return RedirectResponse(f"/monitor/dashboard?success=Role+updated+successfully+for+{member.name}", status_code=302)
 
 
 # ── Seat Rent Table (save) ───────────────────────────────────────────────────

@@ -1,43 +1,90 @@
 {% extends "base.html" %}
+
 {% block title %}Bajar List{% endblock %}
+
 {% block content %}
-<div class="max-w-4xl mx-auto px-4 py-6">
-  <h2 class="text-3xl font-bold mb-6">Bajar List — {{ now.strftime('%B %Y') }}</h2>
+<div class="max-w-7xl mx-auto px-4 py-6">
 
-  {% if extra_items %}
-  <div class="bg-orange-50 border border-orange-200 rounded-lg p-4 mb-6">
-    <h3 class="font-bold text-orange-800 text-lg mb-3">Extra Costs This Month</h3>
-    <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
-      {% for item in extra_items %}
-      <div class="flex justify-between bg-white rounded p-3 text-sm border border-orange-100">
-        <span>{{ item.bajarkari }}</span>
-        <span class="font-semibold">৳{{ item.total_cost }}</span>
-      </div>
-      {% endfor %}
-    </div>
-    <div class="flex justify-between font-bold mt-3 pt-3 border-t border-orange-200">
-      <span>Total Extra</span><span>৳{{ extra_total }}</span>
-    </div>
-    <div class="flex justify-between text-orange-700 text-sm mt-1">
-      <span>Per Member</span><span>৳{{ extra_per_head }}</span>
-    </div>
-  </div>
-  {% endif %}
+    <h2 class="text-3xl text-center font-bold mb-6">
+        Bajar List — {{ now.strftime('%B %Y') }}
+    </h2>
 
-  <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-    {% for item in bajar_list %}
-    <div class="bg-white rounded-lg shadow p-5">
-      <h3 class="text-lg font-semibold mb-3">{{ item.bajar_date.strftime('%d-%m-%Y') }}</h3>
-      <div class="space-y-2 text-sm border-t pt-3">
-        <div class="flex justify-between"><span class="font-medium">Name:</span><span>{{ item.bajarkari }}</span></div>
-        <div class="flex justify-between"><span class="font-medium">Meal:</span><span>৳{{ item.meal_cost }}</span></div>
-        {% if item.extra %}<div class="flex justify-between"><span class="font-medium">Extra:</span><span>৳{{ item.extra }}</span></div>{% endif %}
-        <div class="flex justify-between border-t pt-2 font-semibold"><span>Total:</span><span>৳{{ item.total_cost }}</span></div>
-      </div>
+    {% if bajar_list %}
+    <div class="overflow-x-auto bg-white rounded-lg shadow mb-6">
+        <table class="min-w-full border-collapse border border-gray-300">
+            <thead class="bg-gray-100">
+                <tr>
+                    <th class="border px-4 py-3 text-left">Date</th>
+                    <th class="border px-4 py-3 text-left">Name</th>
+                    <th class="border px-4 py-3 text-right">Amount</th>
+                    <th class="border px-4 py-3 text-left">Extra Item</th>
+                    <th class="border px-4 py-3 text-right">Cost</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for day in bajar_list %}
+                    {% for i in range(day.max_rows) %}
+                    <tr class="hover:bg-gray-50">
+                        
+                        {# 1. Span the Date column #}
+                        {% if i == 0 %}
+                        <td class="border px-4 py-2 font-medium align-center" rowspan="{{ day.max_rows }}">
+                            {{ day.date.strftime("%d-%m-%Y") }}
+                        </td>
+                        
+                        {# 2. Span the Bajar Name column #}
+                        <td class="border px-4 py-2 align-center" rowspan="{{ day.max_rows }}">
+                            {% if day.bajar|length > 0 %}
+                                {# If it's our dictionary object from the backend fallback #}
+                                {{ day.bajar[0].bajarkari if day.bajar[0] is mapping else day.bajar[0].bajarkari }}
+                            {% else %}
+                                <span class="text-gray-400">-</span>
+                            {% endif %}
+                        </td>
+                        
+                        {# 3. Span the Bajar Amount column #}
+                        <td class="border px-4 py-2 text-right align-center" rowspan="{{ day.max_rows }}">
+                            {% if day.bajar|length > 0 %}
+                                ৳{{ "%.2f"|format(day.bajar[0].meal_cost) }}
+                            {% else %}
+                                <span class="text-gray-400">৳0.00</span>
+                            {% endif %}
+                        </td>
+                        {% endif %}
+
+                        {# 4. Extra Item columns (Renders every iteration up to max_rows) #}
+                        {% if i < day.extra|length %}
+                            <td class="border px-4 py-2 text-blue-600 font-medium">{{ day.extra[i].extra_name }}</td>
+                            <td class="border px-4 py-2 text-right text-blue-600 font-medium">৳{{ "%.2f"|format(day.extra[i].total_cost) }}</td>
+                        {% else %}
+                            <td class="border px-4 py-2 text-gray-400">-</td>
+                            <td class="border px-4 py-2 text-right text-gray-400">৳0.00</td>
+                        {% endif %}
+
+                    </tr>
+                    {% endfor %}
+                {% endfor %}
+            </tbody>
+            <tfoot class="bg-gray-100 font-bold">
+                <tr>
+                    <td colspan="2" class="border px-4 py-3 text-center">Total</td>
+                    <td class="border px-4 py-3 text-right text-green-600">৳{{ "%.2f"|format(bajar_total) }}</td>
+                    <td class="border px-4 py-3 text-center">Extra Total</td>
+                    <td class="border px-4 py-3 text-right text-blue-600">৳{{ "%.2f"|format(extra_total) }}</td>
+                </tr>
+                <tr class="bg-gray-800 text-white">
+                    <td colspan="4" class="border px-4 py-3 text-center text-cyan-300">Extra Cost (Per Head)</td>
+                    <td class="border px-4 py-3 text-right text-cyan-400">৳{{ "%.2f"|format(extra_per_person) }}</td>
+                </tr>
+            </tfoot>
+        </table>
     </div>
+
     {% else %}
-    <div class="col-span-3 text-center text-gray-500 py-10">No bajar records for this month.</div>
-    {% endfor %}
-  </div>
+    <div class="text-center text-gray-500 py-10 bg-white rounded-lg shadow">
+        No bajar records found for this month.
+    </div>
+    {% endif %}
+
 </div>
 {% endblock %}

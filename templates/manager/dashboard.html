@@ -2,268 +2,240 @@
 {% block title %}Manager Dashboard{% endblock %}
 
 {% block content %}
-<div class="max-w-7xl mx-auto px-4 py-6 space-y-6">
+<div class="max-w-7xl mx-auto px-4 py-4 md:py-6 space-y-4 md:space-y-6">
 
-  <div class="flex items-center justify-between">
-    <h1 class="text-3xl font-bold text-gray-800">Manager Dashboard</h1>
-    <a href="/signout" class="bg-red-500 text-white px-4 py-2 rounded hover:bg-red-600 text-sm font-semibold">Signout</a>
-  </div>
-
-  <!-- Summary cards -->
-  <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
-    <div class="bg-white rounded-lg shadow p-4 text-center">
-      <p class="text-gray-500 text-sm">Total Meals</p>
-      <p class="text-3xl font-bold text-blue-600">{{ total_meals }}</p>
-    </div>
-    <div class="bg-white rounded-lg shadow p-4 text-center">
-      <p class="text-gray-500 text-sm">Meal Expense</p>
-      <p class="text-3xl font-bold text-green-600">৳{{ total_expense }}</p>
-    </div>
-    <div class="bg-white rounded-lg shadow p-4 text-center">
-      <p class="text-gray-500 text-sm">Meal Rate</p>
-      <p class="text-3xl font-bold text-purple-600">৳{{ meal_rate }}</p>
-    </div>
-    <div class="bg-white rounded-lg shadow p-4 text-center">
-      <p class="text-gray-500 text-sm">Extra/Head</p>
-      <p class="text-3xl font-bold text-orange-600">৳{{ extra_per_head }}</p>
-    </div>
-  </div>
-
-  <div class="grid grid-cols-12 gap-6">
-
-    <!-- LEFT: Meal Table -->
-    <div class="col-span-12 lg:col-span-8 space-y-6">
-
-<!-- Meal on/off table -->
-<div class="bg-white rounded-lg shadow p-4">
-  <div class="flex items-center justify-between mb-3">
-    <h2 class="text-xl font-bold">Daily Meal Entry</h2>
-    <div class="flex items-center gap-2">
-      <label class="text-sm text-gray-600 font-medium">Date:</label>
-      <input type="date" id="meal-date"
-             class="border border-gray-300 rounded px-3 py-1 text-sm focus:outline-none focus:ring"/>
-    </div>
-  </div>
-  <div class="overflow-x-auto">
-    <table id="meal-table" class="min-w-full text-sm border border-gray-200 rounded">
-      <thead class="bg-gray-100">
-        <tr>
-          <th class="px-4 py-2 text-left">Boder Name</th>
-          <th class="px-4 py-2 text-center" id="date-header">Meal</th>
-          <th class="px-4 py-2 text-center">Total Meal</th>
-        </tr>
-      </thead>
-      <tbody>
-        {% for member in members %}
-        <tr class="border-t" data-member-id="{{ member.id }}">
-          <td class="px-4 py-2 font-medium">{{ member.name }}</td>
-          <td class="px-4 py-2 text-center">
-            <input type="number" step="0.5" min="0" max="3"
-                   value="{{ tomorrow_meal.get(member.id, 0.0) | float }}"
-                   class="meal-input w-20 border rounded text-center py-1 focus:outline-none focus:ring"
-                   data-member-id="{{ member.id }}"/>
-          </td>
-          <td class="px-4 py-2 text-center font-semibold text-blue-700 total-meal">
-            {{ member_meals.get(member.id, 0) | round(2) }}
-          </td>
-        </tr>
-        {% endfor %}
-      </tbody>
-      <tfoot>
-        <tr class="bg-yellow-50 font-bold border-t-2 border-gray-400">
-          <td class="px-4 py-2">Total Meal</td>
-          <td class="px-4 py-2 text-center" id="daily-grand-total">0.0</td>
-          <td class="px-4 py-2 text-center" id="monthly-grand-total">0.0</td>
-        </tr>
-      </tfoot>
-    </table>
-  </div>
-  <div class="flex gap-3 mt-3">
-    <button id="saveMealsBtn"
-            class="bg-green-600 text-white font-semibold py-2 px-4 rounded hover:bg-green-700">
-      Save Meals
-    </button>
-
-    <a href="/meal?print=true" target="_blank" class="bg-blue-500 text-white font-semibold py-2 px-4 rounded hover:bg-blue-600 text-sm flex items-center gap-1">
-    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-      <path stroke-linecap="round" stroke-linejoin="round" d="M4 16v2a2 2 0 002 2h12a2 2 0 002-2v-2M7 10l5 5 5-5M12 3v12"/>
-    </svg>
-    Download Meal Table
-  </a>
-
-    <a href="/meal" class="bg-gray-200 text-gray-700 font-semibold py-2 px-4 rounded hover:bg-gray-300 text-sm flex items-center">
-      View Full Table →
+  <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 bg-white p-4 rounded-lg shadow-sm">
+    <h1 class="text-2xl md:text-3xl font-bold text-gray-800">Manager Dashboard</h1>
+    <a href="/signout" class="w-full sm:w-auto text-center bg-red-500 text-white px-4 py-2 rounded hover:bg-red-600 text-sm font-semibold transition-colors">
+      Signout
     </a>
   </div>
-</div>
 
+  <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
 
-      <!-- Meal Summary -->
-<div id="printable-summary-area" class="bg-white p-4 rounded-lg shadow">
-  
-  <div class="flex items-center justify-between mb-3">
-    <h2 class="text-xl font-bold">Meal Summary</h2>
-    <button onclick="downloadSummaryTable()" class="no-print bg-blue-500 text-white font-semibold py-2 px-4 rounded hover:bg-blue-600 text-sm flex items-center gap-1">
-      <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-        <path stroke-linecap="round" stroke-linejoin="round" d="M4 16v2a2 2 0 002 2h12a2 2 0 002-2v-2M7 10l5 5 5-5M12 3v12"/>
-      </svg>
-      Download
-    </button>
-  </div>
+    <div class="col-span-1 lg:col-span-2 space-y-6">
 
-  <div class="overflow-x-auto">
-    <table class="min-w-full border border-gray-200 text-sm rounded">
-      <thead class="bg-blue-400 text-white">
-        <tr>
-          <th class="px-3 py-2">Name</th>
-          <th class="px-3 py-2">Meals</th>
-          <th class="px-3 py-2">Meal Rate</th>
-          <th class="px-3 py-2">Meal Bill</th>
-          <th class="px-3 py-2">Extra Bill</th>
-          <th class="px-3 py-2">Total Bill</th>
-          <th class="px-3 py-2">Saved</th>
-          <th class="px-3 py-2">Balance</th>
-        </tr>
-      </thead>
-      <tbody>
-        {% for member in members %}
-          {% set meals = member_meals.get(member.id, 0) %}
-          {% set saved = (member_saved_meal.get(member.id, 0) + member_saved_gas.get(member.id, 0)) %}
-          
-          {# Calculate specific bills #}
-          {% set meal_bill = (meal_rate * meals) | round(2) %}
-          {% set extra_bill = extra_per_head | float %}
-          {% set total_bill = (meal_bill + extra_bill) | round(2) %}
-          
-          {# Final Net Balance #}
-          {% set balance = (saved - total_bill) | round(2) %}
-          
-        <tr class="text-center border-t">
-          <td class="px-3 py-2 text-left font-medium">{{ member.name }}</td>
-          <td class="px-3 py-2">{{ meals }}</td>
-          <td class="px-3 py-2">৳{{ meal_rate }}</td>
-          <td class="px-3 py-2">৳{{ meal_bill }}</td>
-          <td class="px-3 py-2">৳{{ extra_bill }}</td>
-          <td class="px-3 py-2 font-semibold text-gray-700">৳{{ total_bill }}</td>
-          <td class="px-3 py-2">৳{{ saved | round(2) }}</td>
-          <td class="px-3 py-2 font-bold {{ 'text-green-600' if balance >= 0 else 'text-red-600' }}">
-            ৳{{ balance }}
-          </td>
-        </tr>
-        {% endfor %}
-      </tbody>
-    </table>
-  </div>
-</div>
-
-      <!-- Extra Cost form -->
-      <div class="bg-white rounded-lg shadow p-4">
-        <h2 class="text-xl font-bold mb-3">Add Extra Costs</h2>
-        <div id="extra-cost-list" class="space-y-2">
-          <div class="extra-cost-row flex gap-2">
-            <input type="text" placeholder="Item name" class="extra-name flex-1 border border-gray-300 rounded px-3 py-2 text-sm focus:outline-none focus:ring"/>
-            <input type="number" placeholder="Cost" class="extra-cost w-32 border border-gray-300 rounded px-3 py-2 text-sm focus:outline-none focus:ring"/>
-            <button type="button" onclick="removeExtraRow(this)" class="text-red-500 hover:text-red-700 text-sm px-2">✕</button>
+      <div class="bg-white rounded-lg shadow p-4 md:p-6">
+        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-4">
+          <h2 class="text-xl font-bold text-gray-800">Daily Meal Entry</h2>
+          <div class="flex items-center gap-2 w-full sm:w-auto">
+            <label for="meal-date" class="text-sm text-gray-600 font-medium whitespace-nowrap">Date:</label>
+            <input type="date" id="meal-date"
+                   class="w-full sm:w-auto border border-gray-300 rounded-md px-3 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-green-500"/>
           </div>
         </div>
-        <div class="flex gap-2 mt-3">
-          <button onclick="addExtraRow()" class="bg-gray-200 text-gray-700 px-3 py-2 rounded text-sm hover:bg-gray-300">+ Add Row</button>
-          <button id="saveExtraCostBtn" class="bg-orange-500 text-white px-4 py-2 rounded text-sm hover:bg-orange-600 font-semibold">Save Extra Costs</button>
-        </div>
-        <p class="text-xs text-gray-500 mt-2">Extra costs will appear in the Bajar section and be divided per member.</p>
-      </div>
-
-      <!-- Financial Collection -->
-      <div class="bg-white rounded-lg shadow p-4">
-        <h2 class="text-xl font-bold mb-3">Meal & Gas Collection</h2>
-        <div class="overflow-x-auto">
-          <table id="financialTable" class="min-w-full border border-gray-200 rounded text-sm">
-            <thead class="bg-gray-100">
+        
+        <div class="overflow-x-auto -mx-4 md:mx-0 border border-gray-200 rounded-lg">
+          <table id="meal-table" class="min-w-full text-sm divide-y divide-gray-200">
+            <thead class="bg-gray-50">
               <tr>
-                <th class="px-3 py-2 text-left">Name</th>
-                <th class="px-3 py-2 text-left">Meal Fee</th>
-                <th class="px-3 py-2 text-left">Gas Fee</th>
-                <th class="px-3 py-2 text-left">Total</th>
+                <th class="px-4 py-3 text-left font-semibold text-gray-700">Border Name</th>
+                <th class="px-4 py-3 text-center font-semibold text-gray-700" id="date-header">Meal</th>
+                <th class="px-4 py-3 text-center font-semibold text-gray-700">Total Meal</th>
               </tr>
             </thead>
-            <tbody>
+            <tbody class="divide-y divide-gray-200 bg-white">
               {% for member in members %}
-              <tr data-member-id="{{ member.id }}" class="border-t">
-                <td class="px-3 py-2">{{ member.name }}</td>
-                <td class="px-3 py-2"><input type="number" class="meal-input w-24 border rounded px-2 py-1" value="{{ member_saved_meal.get(member.id, 0) }}"/></td>
-                <td class="px-3 py-2"><input type="number" class="gas-input w-24 border rounded px-2 py-1" value="{{ member_saved_gas.get(member.id, 0) }}"/></td>
-                <td class="px-3 py-2 total-cell font-semibold">{{ (member_saved_meal.get(member.id, 0) + member_saved_gas.get(member.id, 0)) | round(2) }}</td>
+              <tr data-member-id="{{ member.id }}" class="hover:bg-gray-50 transition-colors">
+                <td class="px-4 py-3 font-medium text-gray-900 whitespace-nowrap">{{ member.name }}</td>
+                <td class="px-4 py-3 text-center">
+                  <input type="number" step="0.5" min="0" max="3"
+                         value="{{ tomorrow_meal.get(member.id, 0.0) | float }}"
+                         class="meal-input w-20 border border-gray-300 rounded text-center py-1.5 focus:outline-none focus:ring-2 focus:ring-green-500"
+                         data-member-id="{{ member.id }}"/>
+                </td>
+                <td class="px-4 py-3 text-center font-semibold text-blue-700 total-meal">
+                  {{ member_meals.get(member.id, 0) | round(2) }}
+                </td>
+              </tr>
+              {% endfor %}
+            </tbody>
+            <tfoot class="bg-yellow-50 font-bold border-t-2 border-gray-300">
+              <tr>
+                <td class="px-4 py-3 text-gray-800">Total Meal</td>
+                <td class="px-4 py-3 text-center text-gray-900" id="daily-grand-total">0.0</td>
+                <td class="px-4 py-3 text-center text-gray-900" id="monthly-grand-total">0.0</td>
+              </tr>
+            </tfoot>
+          </table>
+        </div>
+        
+        <div class="flex flex-col sm:flex-row gap-3 mt-4">
+          <button id="saveMealsBtn" class="w-full sm:w-auto bg-green-600 text-white font-semibold py-2 px-5 rounded-md hover:bg-green-700 transition-colors">
+            Save Meals
+          </button>
+          <a href="/meal?print=true" target="_blank" class="w-full sm:w-auto bg-blue-500 text-white font-semibold py-2 px-4 rounded-md hover:bg-blue-600 text-sm flex items-center justify-center gap-1.5 transition-colors">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M4 16v2a2 2 0 002 2h12a2 2 0 002-2v-2M7 10l5 5 5-5M12 3v12"/>
+            </svg>
+            Download Meal Table
+          </a>
+          <a href="/meal" class="w-full sm:w-auto bg-gray-100 text-gray-700 font-semibold py-2 px-4 rounded-md hover:bg-gray-200 text-sm flex items-center justify-center transition-colors">
+            View Full Table →
+          </a>
+        </div>
+      </div>
+
+      <div class="bg-white rounded-lg shadow p-4 md:p-6">
+        <h2 class="text-xl font-bold text-gray-800 mb-4">Add Bajar Item</h2>
+        <form action="/manager/add-bajar" method="POST" class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          <div>
+            <label for="meal-date" class="text-sm font-medium text-gray-700">Date</label>
+            <input type="date" name="bajar_date" id="meal-date" required class="w-full border border-gray-300 rounded-md px-3 py-2 mt-1 focus:outline-none focus:ring-2 focus:ring-blue-500"/>
+          </div>
+          <div>
+            <label class="text-sm font-medium text-gray-700">Name</label>
+            <input type="text" name="bajarkari" placeholder="Who went?" required class="w-full border border-gray-300 rounded-md px-3 py-2 mt-1 focus:outline-none focus:ring-2 focus:ring-blue-500"/>
+          </div>
+          <div>
+            <label class="text-sm font-medium text-gray-700">Meal Cost</label>
+            <input type="number" name="meal_cost" placeholder="0" required class="w-full border border-gray-300 rounded-md px-3 py-2 mt-1 focus:outline-none focus:ring-2 focus:ring-blue-500"/>
+          </div>
+          <div>
+            <label class="text-sm font-medium text-gray-700">Extra</label>
+            <input type="number" name="extra" placeholder="0" class="w-full border border-gray-300 rounded-md px-3 py-2 mt-1 focus:outline-none focus:ring-2 focus:ring-blue-500"/>
+          </div>
+          <div class="sm:col-span-2">
+            <label class="text-sm font-medium text-gray-700">Total Cost</label>
+            <input type="number" name="totalCost" placeholder="0" required class="w-full border border-gray-300 rounded-md px-3 py-2 mt-1 focus:outline-none focus:ring-2 focus:ring-blue-500"/>
+          </div>
+          <div class="sm:col-span-2 pt-2">
+            <button type="submit" class="w-full sm:w-auto bg-blue-500 text-white py-2.5 px-6 rounded-md hover:bg-blue-600 font-semibold transition-colors">Submit</button>
+          </div>
+        </form>
+      </div>
+
+      <div class="bg-white rounded-lg shadow p-4 md:p-6">
+        <h2 class="text-xl font-bold text-gray-800 mb-4">Add Extra Costs</h2>
+        <div id="extra-cost-list" class="space-y-3">
+          <div class="extra-cost-row flex flex-col sm:flex-row gap-2 pb-3 sm:pb-0 border-b sm:border-none border-gray-100">
+            <input type="text" placeholder="Item name" class="extra-name flex-1 border border-gray-300 rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-orange-500"/>
+            <input type="number" placeholder="Cost" class="extra-cost w-full sm:w-32 border border-gray-300 rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-orange-500"/>
+            <button type="button" onclick="removeExtraRow(this)" class="text-red-500 hover:text-red-700 text-sm py-1 sm:px-2 text-left sm:text-center font-medium">✕ Remove</button>
+          </div>
+        </div>
+        <div class="flex flex-col sm:flex-row gap-3 mt-4">
+          <button onclick="addExtraRow()" class="w-full sm:w-auto bg-gray-100 text-gray-700 px-4 py-2 rounded-md text-sm font-medium hover:bg-gray-200 transition-colors">+ Add Row</button>
+          <button id="saveExtraCostBtn" class="w-full sm:w-auto bg-orange-500 text-white px-5 py-2 rounded-md text-sm hover:bg-orange-600 font-semibold transition-colors">Save Extra Costs</button>
+        </div>
+        <p class="text-xs text-gray-500 mt-2.5">Extra costs will appear in the Bajar section and be divided per member.</p>
+      </div>
+
+      <div class="bg-white rounded-lg shadow p-4 md:p-6">
+        <h2 class="text-xl font-bold text-gray-800 mb-4">Meal & Gas Collection</h2>
+        <div class="overflow-x-auto -mx-4 md:mx-0 border border-gray-200 rounded-lg">
+          <table id="financialTable" class="min-w-full divide-y divide-gray-200 text-sm">
+            <thead class="bg-gray-50">
+              <tr>
+                <th class="px-4 py-3 text-left font-semibold text-gray-700">Name</th>
+                <th class="px-4 py-3 text-left font-semibold text-gray-700">Meal Fee</th>
+                <th class="px-4 py-3 text-left font-semibold text-gray-700">Gas Fee</th>
+                <th class="px-4 py-3 text-left font-semibold text-gray-700">Total</th>
+              </tr>
+            </thead>
+            <tbody class="divide-y divide-gray-200 bg-white">
+              {% for member in members %}
+              <tr data-member-id="{{ member.id }}" class="hover:bg-gray-50 transition-colors">
+                <td class="px-4 py-3 font-medium text-gray-900 whitespace-nowrap">{{ member.name }}</td>
+                <td class="px-4 py-3 whitespace-nowrap"><input type="number" class="meal-input w-24 border border-gray-300 rounded px-2 py-1 focus:ring-2 focus:ring-green-500 focus:outline-none" value="{{ member_saved_meal.get(member.id, 0) }}"/></td>
+                <td class="px-4 py-3 whitespace-nowrap"><input type="number" class="gas-input w-24 border border-gray-300 rounded px-2 py-1 focus:ring-2 focus:ring-green-500 focus:outline-none" value="{{ member_saved_gas.get(member.id, 0) }}"/></td>
+                <td class="px-4 py-3 total-cell font-semibold text-gray-900 whitespace-nowrap">{{ (member_saved_meal.get(member.id, 0) - member_saved_gas.get(member.id, 0)) | round(2) }}</td>
               </tr>
               {% endfor %}
             </tbody>
           </table>
         </div>
-        <button id="saveFinancialBtn" class="mt-3 bg-green-600 text-white font-semibold py-2 px-4 rounded hover:bg-green-700">
+        <button id="saveFinancialBtn" class="mt-4 w-full sm:w-auto bg-green-600 text-white font-semibold py-2 px-5 rounded-md hover:bg-green-700 transition-colors">
           Save Financial
         </button>
       </div>
 
-      <!-- Add Bajar Item -->
-      <div class="bg-white rounded-lg shadow p-4">
-        <h2 class="text-xl font-bold mb-3">Add Bajar Item</h2>
-        <form action="/manager/add-bajar" method="POST" class="grid grid-cols-2 gap-3">
-          <div>
-            <label class="text-sm font-medium">Date</label>
-            <input type="date" name="bajar_date" required class="w-full border border-gray-300 rounded px-3 py-2 mt-1 focus:outline-none focus:ring"/>
-          </div>
-          <div>
-            <label class="text-sm font-medium">Name</label>
-            <input type="text" name="bajarkari" placeholder="Who went?" required class="w-full border border-gray-300 rounded px-3 py-2 mt-1 focus:outline-none focus:ring"/>
-          </div>
-          <div>
-            <label class="text-sm font-medium">Meal Cost</label>
-            <input type="number" name="meal_cost" placeholder="0" required class="w-full border border-gray-300 rounded px-3 py-2 mt-1 focus:outline-none focus:ring"/>
-          </div>
-          <div>
-            <label class="text-sm font-medium">Extra</label>
-            <input type="number" name="extra" placeholder="0" class="w-full border border-gray-300 rounded px-3 py-2 mt-1 focus:outline-none focus:ring"/>
-          </div>
-          <div class="col-span-2">
-            <label class="text-sm font-medium">Total Cost</label>
-            <input type="number" name="totalCost" placeholder="0" required class="w-full border border-gray-300 rounded px-3 py-2 mt-1 focus:outline-none focus:ring"/>
-          </div>
-          <div class="col-span-2">
-            <button type="submit" class="bg-blue-500 text-white py-2 px-4 rounded hover:bg-blue-600 font-semibold">Submit</button>
-          </div>
-        </form>
-      </div>
+      <div id="printable-summary-area" class="bg-white p-4 md:p-6 rounded-lg shadow">
+        <div class="flex items-center justify-between mb-4">
+          <h2 class="text-xl font-bold text-gray-800">Meal Summary</h2>
+          <button onclick="downloadSummaryTable()" class="no-print bg-blue-500 text-white font-semibold py-2 px-4 rounded-md hover:bg-blue-600 text-sm flex items-center gap-1.5 transition-colors">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M4 16v2a2 2 0 002 2h12a2 2 0 002-2v-2M7 10l5 5 5-5M12 3v12"/>
+            </svg>
+            Download
+          </button>
+        </div>
 
+        <div class="overflow-x-auto -mx-4 md:mx-0 border border-gray-200 rounded-lg">
+          <table class="min-w-full text-sm divide-y divide-gray-200">
+            <thead class="bg-blue-500 text-white">
+              <tr>
+                <th class="px-3 py-2.5 font-semibold whitespace-nowrap text-left">Name</th>
+                <th class="px-3 py-2.5 font-semibold whitespace-nowrap">Meals</th>
+                <th class="px-3 py-2.5 font-semibold whitespace-nowrap">Meal Bill</th>
+                <th class="px-3 py-2.5 font-semibold whitespace-nowrap">Total Bill</th>
+                <th class="px-3 py-2.5 font-semibold whitespace-nowrap">Saved</th>
+                <th class="px-3 py-2.5 font-semibold whitespace-nowrap">Balance</th>
+              </tr>
+            </thead>
+            <tbody class="divide-y divide-gray-200 bg-white text-center">
+              {% for member in members %}
+                {% set meals = member_meals.get(member.id, 0) %}
+                
+                {# FIX 1: Saved Total = Meal Fee Input MINUS Gas Fee Input #}
+                {% set saved_meal_cash = member_saved_meal.get(member.id, 0) | float %}
+                {% set saved_gas_cash = member_saved_gas.get(member.id, 0) | float %}
+                {% set total_saved = saved_meal_cash - saved_gas_cash %}
+                
+                {# FIX 2: Explicitly multiply the backend verified meal_rate #}
+                {% set meal_bill = (meal_rate * meals) | round(2) %}
+                {% set extra_bill = extra_per_head | float %}
+                
+                {# FIX 3: Total Bill = Meal Bill + Extra Costs #}
+                {% set total_bill = (meal_bill + extra_bill) | round(2) %}
+                {% set balance = (total_saved - total_bill) | round(2) %}
+                
+              <tr class="hover:bg-gray-50 transition-colors">
+                <td class="px-3 py-3 text-left font-medium text-gray-900 whitespace-nowrap">{{ member.name }}</td>
+                <td class="px-3 py-3 text-gray-700 whitespace-nowrap">{{ meals }}</td>
+                <td class="px-3 py-3 text-gray-700 whitespace-nowrap">৳{{ "%.2f"|format(meal_bill) }}</td>
+                <td class="px-3 py-3 font-semibold text-gray-900 whitespace-nowrap">৳{{ "%.2f"|format(total_bill) }}</td>
+                <td class="px-3 py-3 text-gray-700 whitespace-nowrap">৳{{ "%.2f"|format(total_saved) }}</td>
+                <td class="px-3 py-3 font-bold whitespace-nowrap {{ 'text-green-600' if balance >= 0 else 'text-red-600' }}">
+                  ৳{{ "%.2f"|format(balance) }}
+                </td>
+              </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+      </div>
     </div>
 
-    <!-- RIGHT: Extra items display + Meal summary -->
-    <div class="col-span-12 lg:col-span-4 space-y-4">
-
-      <!-- Extra costs this month -->
+    <div class="col-span-1 space-y-4">
       {% if extra_items %}
-      <div class="bg-white p-4 rounded-lg shadow">
-        <h2 class="text-lg font-bold mb-3">Extra Costs This Month</h2>
-        {% for item in extra_items %}
-        <div class="flex justify-between text-sm border-b py-1">
-          <span>{{ item.bajarkari }}</span>
-          <span class="font-semibold">৳{{ item.total_cost }}</span>
+      <div class="bg-white p-4 md:p-6 rounded-lg shadow">
+        <h2 class="text-lg font-bold text-gray-800 mb-3">Extra Costs This Month</h2>
+        <div class="divide-y divide-gray-100 max-h-72 overflow-y-auto pr-1">
+          {% for item in extra_items %}
+          <div class="flex justify-between text-sm py-2.5">
+            <span class="text-gray-600 font-medium">{{ item.bajarkari }}</span>
+            <span class="font-semibold text-gray-900">৳{{ item.total_cost }}</span>
+          </div>
+          {% endfor %}
         </div>
-        {% endfor %}
-        <div class="flex justify-between font-bold mt-2 pt-2 border-t">
+        <div class="flex justify-between font-bold text-base mt-3 pt-3 border-t border-gray-200 text-gray-900">
           <span>Total</span><span>৳{{ extra_total }}</span>
         </div>
-        <div class="flex justify-between text-sm text-orange-600 mt-1">
+        <div class="flex justify-between text-sm font-semibold text-orange-600 mt-1.5 bg-orange-50 p-2 rounded">
           <span>Per Member</span><span>৳{{ extra_per_head }}</span>
         </div>
       </div>
       {% endif %}
     </div>
+
   </div>
 </div>
 {% endblock %}
 
 {% block scripts %}
 <script>
-  // Live daily total footer calculations for Dashboard
+  // Live daily total calculations
   function calcDailyTotal() {
     let dailySum = 0;
     let monthlySum = 0;
@@ -280,20 +252,19 @@
     if(monthlyGrandTotalEl) monthlyGrandTotalEl.textContent = monthlySum.toFixed(1);
   }
 
-  // Bind input changes to update totals instantly
   document.querySelectorAll(".meal-input").forEach(i => {
     i.addEventListener("input", calcDailyTotal);
   });
   calcDailyTotal();
 
-  // Extra cost rows logic
+  // Responsive Extra cost rows logic
   function addExtraRow() {
     const div = document.createElement("div");
-    div.className = "extra-cost-row flex gap-2";
+    div.className = "extra-cost-row flex flex-col sm:flex-row gap-2 pb-3 sm:pb-0 border-b sm:border-none border-gray-100";
     div.innerHTML = `
-      <input type="text" placeholder="Item name" class="extra-name flex-1 border border-gray-300 rounded px-3 py-2 text-sm focus:outline-none focus:ring"/>
-      <input type="number" placeholder="Cost" class="extra-cost w-32 border border-gray-300 rounded px-3 py-2 text-sm focus:outline-none focus:ring"/>
-      <button type="button" onclick="removeExtraRow(this)" class="text-red-500 hover:text-red-700 text-sm px-2">✕</button>`;
+      <input type="text" placeholder="Item name" class="extra-name flex-1 border border-gray-300 rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-orange-500"/>
+      <input type="number" placeholder="Cost" class="extra-cost w-full sm:w-32 border border-gray-300 rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-orange-500"/>
+      <button type="button" onclick="removeExtraRow(this)" class="text-red-500 hover:text-red-700 text-sm py-1 sm:px-2 text-left sm:text-center font-medium">✕ Remove</button>`;
     document.getElementById("extra-cost-list").appendChild(div);
   }
   
@@ -302,7 +273,7 @@
     if (rows.length > 1) btn.parentElement.remove();
   }
 
-  // Save extra costs
+  // Save extra costs form submission
   document.getElementById("saveExtraCostBtn").addEventListener("click", async () => {
     const items = Array.from(document.querySelectorAll(".extra-cost-row")).map(row => ({
       name: row.querySelector(".extra-name").value.trim(),
@@ -319,12 +290,29 @@
     if (json.success) location.reload();
   });
 
-  // Financial totals live syncing
+// Financial totals live syncing (Subtracting Gas Fee from Meal Fee)
   document.querySelectorAll("#financialTable tbody tr").forEach(row => {
     const meal = row.querySelector(".meal-input");
     const gas = row.querySelector(".gas-input");
     const total = row.querySelector(".total-cell");
-    const calc = () => total.textContent = ((parseFloat(meal.value)||0) + (parseFloat(gas.value)||0)).toFixed(2);
+    
+    const calc = () => {
+      const mealVal = parseFloat(meal.value) || 0;
+      const gasVal = parseFloat(gas.value) || 0;
+      const netTotal = mealVal - gasVal;
+      
+      total.textContent = netTotal.toFixed(2);
+      
+      // Optional: Add visual treatment if balance falls below zero
+      if (netTotal < 0) {
+        total.classList.remove('text-gray-900', 'text-green-600');
+        total.classList.add('text-red-600');
+      } else {
+        total.classList.remove('text-red-600');
+        total.classList.add('text-gray-900');
+      }
+    };
+    
     meal.addEventListener("input", calc);
     gas.addEventListener("input", calc);
   });
@@ -343,7 +331,7 @@
     alert(json.message);
   });
 
-  // Set tomorrow's date as default
+  // Date dynamic strings setup
   const tomorrow = new Date();
   tomorrow.setDate(tomorrow.getDate() + 1);
   const yyyy = tomorrow.getFullYear();
@@ -354,7 +342,6 @@
   dateInput.value = tomorrowStr;
   document.getElementById("date-header").textContent = `${dd} ${tomorrow.toLocaleString("default", { month: "long" })}`;
 
-  // Update header when date changes
   dateInput.addEventListener("change", function () {
     const d = new Date(this.value);
     const day = String(d.getDate()).padStart(2, "0");
@@ -362,7 +349,7 @@
     document.getElementById("date-header").textContent = `${day} ${month}`;
   });
 
-  // Save meals for selected date
+  // Save daily meal tracking metrics
   document.getElementById("saveMealsBtn").addEventListener("click", async () => {
     const selectedDate = document.getElementById("meal-date").value;
     if (!selectedDate) { alert("Please select a date."); return; }
@@ -384,48 +371,40 @@
     if (json.success) location.reload();
   });
 
+  // Printing execution
   function downloadSummaryTable() {
-  // 1. Get the HTML element of the summary card
-  const printContents = document.getElementById('printable-summary-area').innerHTML;
-  
-  // 2. Open a hidden window
-  const printWindow = window.open('', '_blank', 'width=900,height=700');
-  
-  // 3. Construct a completely clean document payload with Tailwind styling
-  printWindow.document.write(`
-    <html>
-      <head>
-        <title>Meal Summary</title>
-        <script src="https://cdn.tailwindcss.com"><\/script>
-        <style>
-          @media print {
-            .no-print { display: none !important; }
-            @page { size: A4 portrait; margin: 15mm; }
-            table { width: 100%; border-collapse: collapse; }
-            th, td { border: 1px solid #e5e7eb !important; padding: 8px !important; text-align: center; }
-            th { background-color: #60a5fa !important; color: white !important; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
-          }
-          /* Screen preview styles */
-          table { width: 100%; border-collapse: collapse; margin-top: 20px; }
-          th, td { border: 1px solid #e5e7eb; padding: 8px; text-align: center; }
-          th { background-color: #60a5fa; color: white; }
-        </style>
-      </head>
-      <body class="p-6 bg-white">
-        ${printContents}
-      </body>
-    </html>
-  `);
-  
-  printWindow.document.close();
-  printWindow.focus();
-  
-  // 4. Wait slightly for the tailwind library to paint elements, then run download/print
-  setTimeout(() => {
-    printWindow.print();
-    printWindow.close();
-  }, 400);
-}
+    const printContents = document.getElementById('printable-summary-area').innerHTML;
+    const printWindow = window.open('', '_blank', 'width=900,height=700');
+    printWindow.document.write(`
+      <html>
+        <head>
+          <title>Meal Summary</title>
+          <script src="https://cdn.tailwindcss.com"><\/script>
+          <style>
+            @media print {
+              .no-print { display: none !important; }
+              @page { size: A4 portrait; margin: 15mm; }
+              table { width: 100%; border-collapse: collapse; }
+              th, td { border: 1px solid #e5e7eb !important; padding: 8px !important; text-align: center; }
+              th { background-color: #3b82f6 !important; color: white !important; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+            }
+            table { width: 100%; border-collapse: collapse; margin-top: 20px; }
+            th, td { border: 1px solid #e5e7eb; padding: 8px; text-align: center; }
+            th { background-color: #3b82f6; color: white; }
+          </style>
+        </head>
+        <body class="p-6 bg-white">
+          ${printContents}
+        </body>
+      </html>
+    `);
+    printWindow.document.close();
+    printWindow.focus();
+    setTimeout(() => {
+      printWindow.print();
+      printWindow.close();
+    }, 400);
+  }
 </script>
 
 {% endblock %}

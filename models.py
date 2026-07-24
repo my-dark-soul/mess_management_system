@@ -32,6 +32,7 @@ class Member(Base):
     saved_amounts = relationship("SavedAmount", back_populates="member", cascade="all, delete-orphan")
     gas_records = relationship("GasRecord", back_populates="member", cascade="all, delete-orphan")
     seat_rents = relationship("SeatRent", back_populates="member", cascade="all, delete-orphan")
+    is_active = Column(Boolean, default=True)
 
 
 class MealRecord(Base):
@@ -70,6 +71,7 @@ class Item(Base):
     bajar_date = Column(DateTime, nullable=False, default=datetime.utcnow)
     bajarkari = Column(String(100), nullable=False)
     meal_cost = Column(Float, nullable=False, default=0)
+    extra_name = Column(String(255), nullable=True)
     extra = Column(Float, nullable=True)
     total_cost = Column(Float, nullable=False)
     # 'bajar' = normal shopping, 'extra' = manager extra cost entry

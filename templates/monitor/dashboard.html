@@ -41,17 +41,23 @@
         </div>
 
         <!-- Change role form -->
-        <form action="/monitor/change-role/{{ member.id }}" method="POST" class="space-y-2">
-          <select name="role" class="w-full border border-gray-300 rounded px-2 py-1 text-sm focus:outline-none focus:ring focus:border-blue-400">
-            <option value="boder" {% if member.role == 'boder' %}selected{% endif %}>Boder</option>
-            <option value="manager" {% if member.role == 'manager' %}selected{% endif %}>Manager</option>
-          </select>
-          <input type="password" name="manager_password" placeholder="Set manager password (if changing to manager)"
-                 class="w-full border border-gray-300 rounded px-2 py-1 text-sm focus:outline-none focus:ring focus:border-blue-400"/>
-          <button type="submit" class="w-full bg-blue-500 text-white py-1 rounded hover:bg-blue-600 text-sm transition">
-            Change Role
-          </button>
-        </form>
+<form action="/monitor/change-role/{{ member.id }}" method="POST" class="flex flex-col sm:flex-row gap-2 items-center bg-gray-50 p-2.5 rounded-md border border-gray-200">
+  
+  <div class="w-full sm:w-auto">
+    <select name="role" onchange="togglePasswordInput(this, 'pass-container-{{ member.id }}')" class="w-full border border-gray-300 rounded px-2 py-1 text-sm bg-white focus:outline-none focus:ring-2 focus:ring-blue-500">
+      <option value="boder" {% if member.role == 'boder' %}selected{% endif %}>Boder</option>
+      <option value="manager" {% if member.role == 'manager' %}selected{% endif %}>Manager</option>
+    </select>
+  </div>
+
+  <div id="pass-container-{{ member.id }}" class="{% if member.role != 'manager' %}hidden{% endif %} w-full sm:w-auto">
+    <input type="password" name="manager_password" placeholder="Set Password" class="w-full border border-gray-300 rounded px-2 py-1 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"/>
+  </div>
+
+  <button type="submit" class="w-full sm:w-auto bg-blue-600 hover:bg-blue-700 text-white text-xs font-semibold px-3 py-1.5 rounded transition-colors whitespace-nowrap">
+    Update Role
+  </button>
+</form>
 
         <!-- Delete -->
         <form action="/monitor/delete-member/{{ member.id }}" method="POST"
@@ -152,12 +158,45 @@
       <div class="bg-white p-6 rounded-lg shadow">
         <h2 class="text-xl font-bold mb-4">Add Fine</h2>
         <form action="/monitor/add-fine" method="POST" class="space-y-3">
-          <input type="date" name="fine_date" required class="w-full border border-gray-300 rounded px-3 py-2 focus:outline-none focus:ring"/>
-          <input type="text" name="criminal" placeholder="Member Name" required class="w-full border border-gray-300 rounded px-3 py-2 focus:outline-none focus:ring"/>
-          <input type="text" name="reason" placeholder="Reason" required class="w-full border border-gray-300 rounded px-3 py-2 focus:outline-none focus:ring"/>
-          <input type="number" name="fine_amount" placeholder="Fine Amount" required class="w-full border border-gray-300 rounded px-3 py-2 focus:outline-none focus:ring"/>
-          <input type="number" name="total_fine" placeholder="Total Fine" required class="w-full border border-gray-300 rounded px-3 py-2 focus:outline-none focus:ring"/>
-          <button type="submit" class="bg-red-500 text-white py-2 px-4 rounded hover:bg-red-600">Submit</button>
+          <div>
+            <label class="text-xs font-semibold text-gray-500 uppercase tracking-wider">Fine Date</label>
+            <input type="date" name="fine_date" id="fine-date-input" required 
+                  class="w-full border border-gray-300 rounded px-3 py-2 mt-1 focus:outline-none focus:ring-2 focus:ring-red-500"/>
+          </div>
+
+          <div>
+            <label class="text-xs font-semibold text-gray-500 uppercase tracking-wider">Select Member</label>
+            <select name="criminal" required 
+                    class="w-full border border-gray-300 rounded px-3 py-2 mt-1 bg-white focus:outline-none focus:ring-2 focus:ring-red-500 text-sm">
+              <option value="" disabled selected>-- Choose Member --</option>
+              {% for member in members %}
+                <option value="{{ member.name }}">{{ member.name }}</option>
+              {% endfor %}
+            </select>
+          </div>
+
+          <div>
+            <label class="text-xs font-semibold text-gray-500 uppercase tracking-wider">Reason</label>
+            <input type="text" name="reason" placeholder="Why are they being fined?" required 
+                  class="w-full border border-gray-300 rounded px-3 py-2 mt-1 focus:outline-none focus:ring-2 focus:ring-red-500"/>
+          </div>
+
+          <div class="grid grid-cols-2 gap-3">
+            <div>
+              <label class="text-xs font-semibold text-gray-500 uppercase tracking-wider">Fine Amount</label>
+              <input type="number" name="fine_amount" id="fine_amount" placeholder="0" required 
+                    class="w-full border border-gray-300 rounded px-3 py-2 mt-1 focus:outline-none focus:ring-2 focus:ring-red-500"/>
+            </div>
+            <div>
+              <label class="text-xs font-semibold text-gray-500 uppercase tracking-wider">Total Fine</label>
+              <input type="number" name="total_fine" id="total_fine" placeholder="0" required 
+                    class="w-full border border-gray-300 rounded px-3 py-2 mt-1 focus:outline-none focus:ring-2 focus:ring-red-500"/>
+            </div>
+          </div>
+
+          <button type="submit" class="w-full sm:w-auto bg-red-500 text-white font-semibold py-2 px-6 rounded hover:bg-red-600 transition-colors mt-2">
+            Submit Fine
+          </button>
         </form>
       </div>
 
@@ -292,6 +331,27 @@
     });
     const json = await res.json();
     alert(json.message);
+  });
+
+  // Automatically fill fine date with today's date and link amount fields
+  document.addEventListener("DOMContentLoaded", () => {
+    const fineDate = document.getElementById("fine-date-input");
+    if (fineDate) {
+      const today = new Date();
+      const yyyy = today.getFullYear();
+      const mm = String(today.getMonth() + 1).padStart(2, "0");
+      const dd = String(today.getDate()).padStart(2, "0");
+      fineDate.value = `${yyyy}-${mm}-${dd}`;
+    }
+
+    // Auto-fill Total Fine when Fine Amount is typed
+    const fineAmt = document.getElementById("fine_amount");
+    const totalFine = document.getElementById("total_fine");
+    if (fineAmt && totalFine) {
+      fineAmt.addEventListener("input", () => {
+        totalFine.value = fineAmt.value;
+      });
+    }
   });
 </script>
 {% endblock %}
